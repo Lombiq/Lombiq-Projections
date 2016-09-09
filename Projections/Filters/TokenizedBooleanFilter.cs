@@ -3,6 +3,7 @@ using Orchard.ContentManagement;
 using Orchard.ContentManagement.MetaData;
 using Orchard.ContentManagement.MetaData.Models;
 using Orchard.Core.Common.Models;
+using Orchard.Environment.Extensions;
 using Orchard.Fields.Fields;
 using Orchard.Localization;
 using Orchard.Projections.Descriptors.Filter;
@@ -14,6 +15,7 @@ using System.Linq;
 
 namespace Lombiq.Projections.Projections.Filters
 {
+    [OrchardFeature("Lombiq.Projections.Fields")]
     public class TokenizedBooleanFilter : IFilterProvider
     {
         private readonly IContentDefinitionManager _contentDefinitionManager;

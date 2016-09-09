@@ -1,6 +1,7 @@
 ﻿using Orchard.ContentManagement;
 using Orchard.ContentManagement.Aspects;
 using Orchard.DisplayManagement;
+using Orchard.Environment.Extensions;
 using Orchard.Forms.Services;
 using Orchard.Localization;
 using Orchard.Taxonomies.Models;
@@ -36,6 +37,7 @@ namespace Lombiq.Projections.Projections.Forms
         }
     }
 
+    [OrchardFeature("Lombiq.Projections.Taxonomies")]
     public class TokenizedTaxonomyTermsFilterForm : IFormProvider
     {
         private readonly dynamic _shapeFactory;

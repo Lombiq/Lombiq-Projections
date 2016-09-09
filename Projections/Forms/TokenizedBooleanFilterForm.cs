@@ -1,10 +1,12 @@
 ﻿using Orchard.DisplayManagement;
+using Orchard.Environment.Extensions;
 using Orchard.Forms.Services;
 using Orchard.Localization;
 using System;
 
 namespace Lombiq.Projections.Projections.Forms
 {
+    [OrchardFeature("Lombiq.Projections.Fields")]
     public class TokenizedBooleanFilterForm : IFormProvider
     {
         private readonly dynamic _shapeFactory;

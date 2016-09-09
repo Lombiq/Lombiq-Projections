@@ -7,6 +7,7 @@ using Orchard.Localization;
 using Orchard.Projections.Descriptors.Filter;
 using Orchard.Projections.FieldTypeEditors;
 // Intellisense is not intelligent enough (yet) to recognise usings that are added only for class refernces in comments.
+using Orchard.Projections.Providers.Filters;
 using Orchard.Projections.Services;
 using Orchard.Utility.Extensions;
 using System;
