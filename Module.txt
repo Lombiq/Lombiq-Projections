@@ -9,3 +9,4 @@ Features:
     Lombiq.Projections:
         Name: Lombiq Projections
         Description: Useful Projection filters.
+        Dependencies: Orchard.Fields, Orchard.Forms, Orchard.Projections, Orchard.Taxonomies
