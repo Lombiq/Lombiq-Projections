@@ -14,7 +14,7 @@ Features:
         Description: Useful Projections filters for Content Fields.
         Category: Content
         Dependencies: Lombiq.Projections, Orchard.Fields
-    Lombiq.Projections.Taxonomies
+    Lombiq.Projections.Taxonomies:
         Name: Lombiq Projections - Taxonomies
         Description: Useful Projections filters for Taxonomies.
         Category: Content
