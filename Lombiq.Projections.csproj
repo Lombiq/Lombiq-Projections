@@ -96,6 +96,7 @@
   <ItemGroup>
     <Compile Include="Projections\Filters\NullSafeContentFieldsFilter.cs" />
     <Compile Include="Projections\Filters\TokenizedBooleanFilter.cs" />
+    <Compile Include="Projections\Forms\NullSafeContentFieldsFilterForm.cs" />
     <Compile Include="Projections\Forms\TokenizedBooleanFilterForm.cs" />
     <Compile Include="Projections\Filters\TokenizedContentTypeFilter.cs" />
     <Compile Include="Projections\Forms\TokenizedContentTypeFilterForm.cs" />
