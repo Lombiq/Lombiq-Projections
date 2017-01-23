@@ -62,7 +62,6 @@ namespace Lombiq.Projections.Projections.Forms
                 };
 
             context.Form(FormName, form);
-
         }
 
         public static Action<IHqlExpressionFactory> GetFilterPredicate(dynamic formState, string property)
