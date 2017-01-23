@@ -97,7 +97,7 @@ namespace Lombiq.Projections.Projections.Forms
                 case StringOperator.NotContains:
                     return y => y.Not(x => x.Like(property, Convert.ToString(value), HqlMatchMode.Anywhere));
                 case StringOperator.IsNull:
-                    return x => x.Like(property, "", HqlMatchMode.Exact);
+                    return x => x.IsNull(property);
                 default:
                     throw new ArgumentOutOfRangeException();
             }
