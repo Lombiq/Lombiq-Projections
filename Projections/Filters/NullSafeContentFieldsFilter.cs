@@ -1,8 +1,10 @@
-﻿using Orchard.ContentManagement;
+﻿using Lombiq.Projections.Projections.Forms;
+using Orchard.ContentManagement;
 using Orchard.ContentManagement.Drivers;
 using Orchard.ContentManagement.Handlers;
 using Orchard.ContentManagement.MetaData;
 using Orchard.ContentManagement.MetaData.Models;
+using Orchard.Environment.Extensions;
 using Orchard.Localization;
 using Orchard.Projections.Descriptors.Filter;
 using Orchard.Projections.FieldTypeEditors;
@@ -22,6 +24,7 @@ namespace Lombiq.Projections.Projections.Filters
     /// This is necessary, because values from string-based fields (e.g. TextField, InputField) are indexed
     /// using <see cref="FieldIndexService"/> as null when the value of the field is an empty string.
     /// </summary>
+    [OrchardFeature("Lombiq.Projections.Fields")]
     public class NullSafeContentFieldsFilter : IFilterProvider
     {
         private readonly IContentDefinitionManager _contentDefinitionManager;
@@ -61,7 +64,15 @@ namespace Lombiq.Projections.Projections.Filters
                     var membersContext = new DescribeMembersContext((storageName, storageType, displayName, description) =>
                     {
                         // Look for a compatible field type editor.
-                        IFieldTypeEditor fieldTypeEditor = _fieldTypeEditors.FirstOrDefault(x => x.CanHandle(storageType));
+                        IFieldTypeEditor fieldTypeEditor;
+                        if (storageType.Name == typeof(string).Name)
+                        {
+                            fieldTypeEditor = _fieldTypeEditors.FirstOrDefault(x => x.FormName == typeof(NullSafeContentFieldsFilterForm).Name);
+                        }
+                        else
+                        {
+                            fieldTypeEditor = _fieldTypeEditors.FirstOrDefault(x => x.CanHandle(storageType));
+                        }
 
                         if (fieldTypeEditor == null) return;
 
@@ -82,7 +93,7 @@ namespace Lombiq.Projections.Projections.Filters
         public void ApplyFilter(FilterContext context, IFieldTypeEditor fieldTypeEditor, string storageName, Type storageType, ContentPartDefinition part, ContentPartFieldDefinition field)
         {
             // The filter has to be applied only if there's an actual value (not null or empty) to filter with.
-            if (context.State.Value != null && context.State.Value != "")
+            if ((context.State.Value != null && context.State.Value != "") || context.State.Operator == StringOperator.IsNull)
             {
                 var propertyName = string.Join(".", part.Name, field.Name, storageName ?? "");
 
