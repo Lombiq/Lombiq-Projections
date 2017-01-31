@@ -58,7 +58,7 @@ namespace Lombiq.Projections.Projections.Filters
             {
                 if (!part.Fields.Any()) continue;
 
-                var descriptor = describe.For(part.Name + "ContentFieldsNullSafe", T("{0} Content Fields (null-safe)", part.Name.CamelFriendly()), T("Content Fields for {0} (null-safe).", part.Name.CamelFriendly()));
+                var descriptor = describe.For(part.Name + "ContentFieldsNullSafe", T("{0} Content Fields (empty-safe)", part.Name.CamelFriendly()), T("Content Fields for {0} (empty-safe).", part.Name.CamelFriendly()));
 
                 foreach (var field in part.Fields)
                 {
@@ -76,8 +76,8 @@ namespace Lombiq.Projections.Projections.Filters
 
                         descriptor.Element(
                             type: localPart.Name + "." + localField.Name + "." + storageName,
-                            name: new LocalizedString(localField.DisplayName + (displayName != null ? ":" + displayName.Text : "") + " (null-safe)"),
-                            description: new LocalizedString(description != null ? description + " (null-safe)" : "No filter will be applied if the filter value is empty, so items indexed as null in the database won't be excluded from the result."),
+                            name: new LocalizedString(localField.DisplayName + (displayName != null ? ":" + displayName.Text : "") + " (empty-safe)"),
+                            description: new LocalizedString(description != null ? description + " (empty-safe)" : "No filter will be applied if the filter value is empty, so items indexed as null or empty in the database won't be excluded from the result."),
                             filter: context => ApplyFilter(context, fieldTypeEditor, storageName, storageType, localPart, localField),
                             display: context => fieldTypeEditor.DisplayFilter(localPart.Name + "." + localField.DisplayName, storageName, context.State),
                             form: fieldTypeEditor.FormName);

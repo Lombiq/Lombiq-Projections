@@ -56,7 +56,7 @@ namespace Lombiq.Projections.Projections.Forms
                     f._Operator.Add(new SelectListItem { Value = Convert.ToString(StringOperator.Ends), Text = T("Ends with").Text });
                     f._Operator.Add(new SelectListItem { Value = Convert.ToString(StringOperator.NotEnds), Text = T("Does not end with").Text });
                     f._Operator.Add(new SelectListItem { Value = Convert.ToString(StringOperator.NotContains), Text = T("Does not contain").Text });
-                    f._Operator.Add(new SelectListItem { Value = Convert.ToString(StringOperator.IsNull), Text = T("Is null").Text });
+                    f._Operator.Add(new SelectListItem { Value = Convert.ToString(StringOperator.IsNull), Text = T("Is empty").Text });
 
                     return f;
                 };
@@ -130,7 +130,7 @@ namespace Lombiq.Projections.Projections.Forms
                 case StringOperator.NotContains:
                     return T("{0} does not contain '{1}'", fieldName, value);
                 case StringOperator.IsNull:
-                    return T("{0} is null", fieldName);
+                    return T("{0} is empty", fieldName);
                 default:
                     throw new ArgumentOutOfRangeException();
             }
