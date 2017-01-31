@@ -1,4 +1,5 @@
-﻿using Lombiq.Projections.Projections.Forms;
+﻿using Lombiq.Projections.Projections.FieldTypeEditors;
+using Lombiq.Projections.Projections.Forms;
 using Orchard.ContentManagement;
 using Orchard.Environment.Extensions;
 using Orchard.Localization;
@@ -9,15 +10,18 @@ using System.Linq;
 namespace Orchard.Projections.FieldTypeEditors
 {
     /// <summary>
-    /// <see cref="IFieldTypeEditor"/> implementation for string-based nullable properties
+    /// <see cref="IFieldTypeEditor"/> implementation for string-based nullable properties.
     /// </summary>
     [OrchardFeature("Lombiq.Projections.Fields")]
-    public class NullSafeStringFieldTypeEditor : IFieldTypeEditor {
+    public class NullSafeStringFieldTypeEditor : INullSafeFieldTypeEditor
+    {
         public Localizer T { get; set; }
+
 
         public NullSafeStringFieldTypeEditor() {
             T = NullLocalizer.Instance;
         }
+
 
         public bool CanHandle(Type storageType) {
             return new[] { typeof(string), typeof(char) }.Contains(storageType);

@@ -94,6 +94,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Projections\FieldTypeEditors\INullSafeFieldTypeEditor.cs" />
     <Compile Include="Projections\FieldTypeEditors\NullSafeStringFieldTypeEditor.cs" />
     <Compile Include="Projections\Filters\NullSafeContentFieldsFilter.cs" />
     <Compile Include="Projections\Filters\TokenizedBooleanFilter.cs" />

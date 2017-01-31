@@ -1,4 +1,5 @@
-﻿using Lombiq.Projections.Projections.Forms;
+﻿using Lombiq.Projections.Projections.FieldTypeEditors;
+using Lombiq.Projections.Projections.Forms;
 using Orchard.ContentManagement;
 using Orchard.ContentManagement.Drivers;
 using Orchard.ContentManagement.Handlers;
@@ -30,16 +31,20 @@ namespace Lombiq.Projections.Projections.Filters
         private readonly IContentDefinitionManager _contentDefinitionManager;
         private readonly IEnumerable<IContentFieldDriver> _contentFieldDrivers;
         private readonly IEnumerable<IFieldTypeEditor> _fieldTypeEditors;
+        private readonly IEnumerable<INullSafeFieldTypeEditor> _nullSafeFieldTypeEditors;
 
 
         public NullSafeContentFieldsFilter(
             IContentDefinitionManager contentDefinitionManager,
             IEnumerable<IContentFieldDriver> contentFieldDrivers,
-            IEnumerable<IFieldTypeEditor> fieldTypeEditors)
+            IEnumerable<IFieldTypeEditor> fieldTypeEditors,
+            IEnumerable<INullSafeFieldTypeEditor> nullSafeFieldTypeEditors)
         {
             _contentDefinitionManager = contentDefinitionManager;
             _contentFieldDrivers = contentFieldDrivers;
             _fieldTypeEditors = fieldTypeEditors;
+            _nullSafeFieldTypeEditors = nullSafeFieldTypeEditors;
+
             T = NullLocalizer.Instance;
         }
 
@@ -64,15 +69,8 @@ namespace Lombiq.Projections.Projections.Filters
                     var membersContext = new DescribeMembersContext((storageName, storageType, displayName, description) =>
                     {
                         // Look for a compatible field type editor.
-                        IFieldTypeEditor fieldTypeEditor;
-                        if (storageType.Name == typeof(string).Name)
-                        {
-                            fieldTypeEditor = _fieldTypeEditors.FirstOrDefault(x => x.FormName == typeof(NullSafeContentFieldsFilterForm).Name);
-                        }
-                        else
-                        {
-                            fieldTypeEditor = _fieldTypeEditors.FirstOrDefault(x => x.CanHandle(storageType));
-                        }
+                        var fieldTypeEditor = _nullSafeFieldTypeEditors.FirstOrDefault(x => x.CanHandle(storageType)) ??
+                                                _fieldTypeEditors.FirstOrDefault(x => x.CanHandle(storageType));
 
                         if (fieldTypeEditor == null) return;
 
