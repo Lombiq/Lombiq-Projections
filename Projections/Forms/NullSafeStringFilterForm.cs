@@ -57,6 +57,7 @@ namespace Lombiq.Projections.Projections.Forms
                     f._Operator.Add(new SelectListItem { Value = Convert.ToString(StringOperator.NotEnds), Text = T("Does not end with").Text });
                     f._Operator.Add(new SelectListItem { Value = Convert.ToString(StringOperator.NotContains), Text = T("Does not contain").Text });
                     f._Operator.Add(new SelectListItem { Value = Convert.ToString(StringOperator.IsEmpty), Text = T("Is empty").Text });
+                    f._Operator.Add(new SelectListItem { Value = Convert.ToString(StringOperator.IsNotEmpty), Text = T("Is not empty").Text });
 
                     return f;
                 };
@@ -97,6 +98,8 @@ namespace Lombiq.Projections.Projections.Forms
                     return y => y.Not(x => x.Like(property, Convert.ToString(value), HqlMatchMode.Anywhere));
                 case StringOperator.IsEmpty:
                     return x => x.IsNull(property);
+                case StringOperator.IsNotEmpty:
+                    return x => x.IsNotNull(property);
                 default:
                     throw new ArgumentOutOfRangeException();
             }
@@ -131,6 +134,8 @@ namespace Lombiq.Projections.Projections.Forms
                     return T("{0} does not contain '{1}'", fieldName, value);
                 case StringOperator.IsEmpty:
                     return T("{0} is empty", fieldName);
+                case StringOperator.IsNotEmpty:
+                    return T("{0} is not empty", fieldName);
                 default:
                     throw new ArgumentOutOfRangeException();
             }
@@ -149,6 +154,7 @@ namespace Lombiq.Projections.Projections.Forms
         Ends,
         NotEnds,
         NotContains,
-        IsEmpty
+        IsEmpty,
+        IsNotEmpty
     }
 }
