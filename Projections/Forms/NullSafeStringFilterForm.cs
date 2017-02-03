@@ -10,15 +10,15 @@ using System.Web.Mvc;
 namespace Lombiq.Projections.Projections.Forms
 {
     [OrchardFeature("Lombiq.Projections.Fields")]
-    public class NullSafeContentFieldsFilterForm : IFormProvider
+    public class NullSafeStringFilterForm : IFormProvider
     {
         private readonly dynamic _shapeFactory;
-        public static string FormName = typeof(NullSafeContentFieldsFilterForm).Name;
+        public static string FormName = typeof(NullSafeStringFilterForm).Name;
 
         public Localizer T { get; set; }
 
 
-        public NullSafeContentFieldsFilterForm(IShapeFactory shapeFactory)
+        public NullSafeStringFilterForm(IShapeFactory shapeFactory)
         {
             _shapeFactory = shapeFactory;
             T = NullLocalizer.Instance;
@@ -56,7 +56,7 @@ namespace Lombiq.Projections.Projections.Forms
                     f._Operator.Add(new SelectListItem { Value = Convert.ToString(StringOperator.Ends), Text = T("Ends with").Text });
                     f._Operator.Add(new SelectListItem { Value = Convert.ToString(StringOperator.NotEnds), Text = T("Does not end with").Text });
                     f._Operator.Add(new SelectListItem { Value = Convert.ToString(StringOperator.NotContains), Text = T("Does not contain").Text });
-                    f._Operator.Add(new SelectListItem { Value = Convert.ToString(StringOperator.IsNull), Text = T("Is empty").Text });
+                    f._Operator.Add(new SelectListItem { Value = Convert.ToString(StringOperator.IsEmpty), Text = T("Is empty").Text });
 
                     return f;
                 };
@@ -95,7 +95,7 @@ namespace Lombiq.Projections.Projections.Forms
                     return y => y.Not(x => x.Like(property, Convert.ToString(value), HqlMatchMode.End));
                 case StringOperator.NotContains:
                     return y => y.Not(x => x.Like(property, Convert.ToString(value), HqlMatchMode.Anywhere));
-                case StringOperator.IsNull:
+                case StringOperator.IsEmpty:
                     return x => x.IsNull(property);
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -129,7 +129,7 @@ namespace Lombiq.Projections.Projections.Forms
                     return T("{0} does not end with '{1}'", fieldName, value);
                 case StringOperator.NotContains:
                     return T("{0} does not contain '{1}'", fieldName, value);
-                case StringOperator.IsNull:
+                case StringOperator.IsEmpty:
                     return T("{0} is empty", fieldName);
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -149,6 +149,6 @@ namespace Lombiq.Projections.Projections.Forms
         Ends,
         NotEnds,
         NotContains,
-        IsNull
+        IsEmpty
     }
 }

@@ -10,7 +10,7 @@ using System.Linq;
 namespace Orchard.Projections.FieldTypeEditors
 {
     /// <summary>
-    /// <see cref="IFieldTypeEditor"/> implementation for string-based nullable properties.
+    /// <see cref="IFieldTypeEditor"/> implementation for nullable properties of type <see cref="char"/> and <see cref="string"/>.
     /// </summary>
     [OrchardFeature("Lombiq.Projections.Fields")]
     public class NullSafeStringFieldTypeEditor : INullSafeFieldTypeEditor
@@ -28,15 +28,15 @@ namespace Orchard.Projections.FieldTypeEditors
         }
 
         public string FormName {
-            get { return NullSafeContentFieldsFilterForm.FormName; }
+            get { return NullSafeStringFilterForm.FormName; }
         }
 
         public Action<IHqlExpressionFactory> GetFilterPredicate(dynamic formState) {
-            return NullSafeContentFieldsFilterForm.GetFilterPredicate(formState, "Value");
+            return NullSafeStringFilterForm.GetFilterPredicate(formState, "Value");
         }
 
         public LocalizedString DisplayFilter(string fieldName, string storageName, dynamic formState) {
-            return NullSafeContentFieldsFilterForm.DisplayFilter(fieldName + " " + storageName, formState, T);
+            return NullSafeStringFilterForm.DisplayFilter(fieldName + " " + storageName, formState, T);
         }
 
         public Action<IAliasFactory> GetFilterRelationship(string aliasName) {
