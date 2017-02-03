@@ -1,5 +1,4 @@
 ﻿using Lombiq.Projections.Projections.FieldTypeEditors;
-using Lombiq.Projections.Projections.Forms;
 using Orchard.ContentManagement;
 using Orchard.ContentManagement.Drivers;
 using Orchard.ContentManagement.Handlers;
@@ -8,7 +7,6 @@ using Orchard.ContentManagement.MetaData.Models;
 using Orchard.Environment.Extensions;
 using Orchard.Localization;
 using Orchard.Projections.Descriptors.Filter;
-using Orchard.Projections.FieldTypeEditors;
 // Intellisense is not intelligent enough (yet) to recognise usings that are added only for class refernces in comments.
 using Orchard.Projections.Providers.Filters;
 using Orchard.Projections.Services;
@@ -30,19 +28,16 @@ namespace Lombiq.Projections.Projections.Filters
     {
         private readonly IContentDefinitionManager _contentDefinitionManager;
         private readonly IEnumerable<IContentFieldDriver> _contentFieldDrivers;
-        private readonly IEnumerable<IFieldTypeEditor> _fieldTypeEditors;
         private readonly IEnumerable<INullSafeFieldTypeEditor> _nullSafeFieldTypeEditors;
 
 
         public NullSafeContentFieldsFilter(
             IContentDefinitionManager contentDefinitionManager,
             IEnumerable<IContentFieldDriver> contentFieldDrivers,
-            IEnumerable<IFieldTypeEditor> fieldTypeEditors,
             IEnumerable<INullSafeFieldTypeEditor> nullSafeFieldTypeEditors)
         {
             _contentDefinitionManager = contentDefinitionManager;
             _contentFieldDrivers = contentFieldDrivers;
-            _fieldTypeEditors = fieldTypeEditors;
             _nullSafeFieldTypeEditors = nullSafeFieldTypeEditors;
 
             T = NullLocalizer.Instance;
@@ -69,8 +64,7 @@ namespace Lombiq.Projections.Projections.Filters
                     var membersContext = new DescribeMembersContext((storageName, storageType, displayName, description) =>
                     {
                         // Look for a compatible field type editor.
-                        var fieldTypeEditor = _nullSafeFieldTypeEditors.FirstOrDefault(x => x.CanHandle(storageType)) ??
-                                                _fieldTypeEditors.FirstOrDefault(x => x.CanHandle(storageType));
+                        var fieldTypeEditor = _nullSafeFieldTypeEditors.FirstOrDefault(x => x.CanHandle(storageType));
 
                         if (fieldTypeEditor == null) return;
 
@@ -88,24 +82,20 @@ namespace Lombiq.Projections.Projections.Filters
             }
         }
 
-        public void ApplyFilter(FilterContext context, IFieldTypeEditor fieldTypeEditor, string storageName, Type storageType, ContentPartDefinition part, ContentPartFieldDefinition field)
+        public void ApplyFilter(FilterContext context, INullSafeFieldTypeEditor fieldTypeEditor, string storageName, Type storageType, ContentPartDefinition part, ContentPartFieldDefinition field)
         {
-            // The filter has to be applied only if there's an actual value (not null or empty) to filter with.
-            if ((context.State.Value != null && context.State.Value != "") || context.State.Operator == StringOperator.IsNull)
-            {
-                var propertyName = string.Join(".", part.Name, field.Name, storageName ?? "");
+            var propertyName = string.Join(".", part.Name, field.Name, storageName ?? "");
 
-                // Use an alias with the generated property name, so that two filters on the same Field Type won't collide.
-                var relationship = fieldTypeEditor.GetFilterRelationship(propertyName.ToSafeName());
+            // Use an alias with the generated property name, so that two filters on the same Field Type won't collide.
+            var relationship = fieldTypeEditor.GetFilterRelationship(propertyName.ToSafeName());
 
-                // Generate the predicate based on the editor, which has been used.
-                Action<IHqlExpressionFactory> predicate = fieldTypeEditor.GetFilterPredicate(context.State);
-                // Combines the predicate with a filter on the specific property name of the storage, as implemented in FieldIndexService.
-                Action<IHqlExpressionFactory> andPredicate = x => x.And(y => y.Eq("PropertyName", propertyName), predicate);
+            // Generate the predicate based on the editor, which has been used.
+            Action<IHqlExpressionFactory> predicate = fieldTypeEditor.GetFilterPredicate(context.State);
+            // Combines the predicate with a filter on the specific property name of the storage, as implemented in FieldIndexService.
+            Action<IHqlExpressionFactory> andPredicate = x => x.And(y => y.Eq("PropertyName", propertyName), predicate);
 
-                // Apply where clause.
-                context.Query = context.Query.Where(relationship, andPredicate);
-            }
+            // Apply where clause.
+            context.Query = context.Query.Where(relationship, andPredicate);
         }
     }
 }
