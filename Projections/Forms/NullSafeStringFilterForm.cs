@@ -1,4 +1,5 @@
-﻿using Orchard.ContentManagement;
+﻿using Lombiq.Projections.Constants;
+using Orchard.ContentManagement;
 using Orchard.DisplayManagement;
 using Orchard.Environment.Extensions;
 using Orchard.Forms.Services;
@@ -9,7 +10,7 @@ using System.Web.Mvc;
 
 namespace Lombiq.Projections.Projections.Forms
 {
-    [OrchardFeature("Lombiq.Projections.Fields")]
+    [OrchardFeature(FeatureNames.Fields)]
     public class NullSafeStringFilterForm : IFormProvider
     {
         private readonly dynamic _shapeFactory;

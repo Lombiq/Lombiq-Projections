@@ -1,4 +1,5 @@
-﻿using Lombiq.Projections.Projections.Forms;
+﻿using Lombiq.Projections.Constants;
+using Lombiq.Projections.Projections.Forms;
 using Orchard.ContentManagement;
 using Orchard.ContentManagement.Aspects;
 using Orchard.Core.Title.Models;
@@ -13,7 +14,7 @@ using System.Linq;
 
 namespace Lombiq.Projections.Projections.Filters
 {
-    [OrchardFeature("Lombiq.Projections.Taxonomies")]
+    [OrchardFeature(FeatureNames.Taxonomies)]
     public class TokenizedTaxonomyTermsFilter : IFilterProvider
     {
         private readonly ITaxonomyService _taxonomyService;

@@ -1,4 +1,5 @@
-﻿using Lombiq.Projections.Projections.FieldTypeEditors;
+﻿using Lombiq.Projections.Constants;
+using Lombiq.Projections.Projections.FieldTypeEditors;
 using Orchard.ContentManagement;
 using Orchard.ContentManagement.Drivers;
 using Orchard.ContentManagement.Handlers;
@@ -23,7 +24,7 @@ namespace Lombiq.Projections.Projections.Filters
     /// This is necessary, because values from string-based fields (e.g. TextField, InputField) are indexed
     /// using <see cref="FieldIndexService"/> as null when the value of the field is an empty string.
     /// </summary>
-    [OrchardFeature("Lombiq.Projections.Fields")]
+    [OrchardFeature(FeatureNames.Fields)]
     public class NullSafeContentFieldsFilter : IFilterProvider
     {
         private readonly IContentDefinitionManager _contentDefinitionManager;

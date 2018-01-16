@@ -1,4 +1,5 @@
-﻿using Lombiq.Projections.Projections.Forms;
+﻿using Lombiq.Projections.Constants;
+using Lombiq.Projections.Projections.Forms;
 using Orchard.ContentManagement;
 using Orchard.Environment.Extensions;
 using Orchard.Localization;
@@ -11,7 +12,7 @@ namespace Lombiq.Projections.Projections.FieldTypeEditors
     /// <summary>
     /// <see cref="IFieldTypeEditor"/> implementation for nullable properties of type <see cref="char"/> and <see cref="string"/>.
     /// </summary>
-    [OrchardFeature("Lombiq.Projections.Fields")]
+    [OrchardFeature(FeatureNames.Fields)]
     public class NullSafeStringFieldTypeEditor : INullSafeFieldTypeEditor
     {
         public Localizer T { get; set; }
