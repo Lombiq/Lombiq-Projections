@@ -16,8 +16,8 @@ namespace Lombiq.Projections.Models
         public virtual int Id { get; set; }
         public virtual string Field { get; set; }
         public virtual bool IsFirstTerm { get; set; }
+        public virtual string Title { get; set; }
         public virtual TermPartRecord TermRecord { get; set; }
-        public virtual TitlePartRecord TitlePartRecord { get; set; }
 
         [CascadeAllDeleteOrphan]
         public virtual TitleSortableTermsPartRecord TitleSortableTermsPartRecord { get; set; }

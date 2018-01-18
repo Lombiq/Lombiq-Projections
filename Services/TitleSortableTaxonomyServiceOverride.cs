@@ -54,25 +54,32 @@ namespace Lombiq.Projections.Services
 
             foreach (var term in termList) titleSortableTermsPart.TermParts.RemoveAt(term.Index);
 
-            terms = TermPart.Sort(terms);
             var firstTerm = true;
 
-            foreach (var term in terms)
+            TitleSortableTermContentItem createTitleSortableTermContentItem(TermPart term) =>
+                new TitleSortableTermContentItem
+                {
+                    TitleSortableTermsPartRecord = titleSortableTermsPart.Record,
+                    TermRecord = term?.Record,
+                    Title = term?.As<TitlePart>().Title,
+                    Field = field,
+                    IsFirstTerm = firstTerm
+                };
+
+            if (terms.Any())
             {
-                termList.RemoveAll(t => t.Term.Id == term.Id);
+                terms = TermPart.Sort(terms);
 
-                titleSortableTermsPart.TermParts.Add(
-                    new TitleSortableTermContentItem
-                    {
-                        TitleSortableTermsPartRecord = titleSortableTermsPart.Record,
-                        TermRecord = term.Record,
-                        TitlePartRecord = term.As<TitlePart>().Record,
-                        Field = field,
-                        IsFirstTerm = firstTerm
-                    });
+                foreach (var term in terms)
+                {
+                    termList.RemoveAll(t => t.Term.Id == term.Id);
 
-                if (firstTerm) firstTerm = false;
+                    titleSortableTermsPart.TermParts.Add(createTitleSortableTermContentItem(term));
+
+                    if (firstTerm) firstTerm = false;
+                }
             }
+            else titleSortableTermsPart.TermParts.Add(createTitleSortableTermContentItem(null));
         }
 
         #region ITaxonomyService proxies without change.

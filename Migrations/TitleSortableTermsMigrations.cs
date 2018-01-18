@@ -15,8 +15,8 @@ namespace Lombiq.Projections.Migrations
                     .Column<int>(nameof(TitleSortableTermContentItem.Id), column => column.PrimaryKey().Identity())
                     .Column<string>(nameof(TitleSortableTermContentItem.Field), column => column.WithLength(50))
                     .Column<bool>(nameof(TitleSortableTermContentItem.IsFirstTerm))
+                    .Column<string>(nameof(TitleSortableTermContentItem.Title))
                     .Column<int>("TermRecord_id")
-                    .Column<int>("TitlePartRecord_id")
                     .Column<int>("TitleSortableTermsPartRecord_id"))
                 .AlterTable(nameof(TitleSortableTermContentItem), table =>
                     {
