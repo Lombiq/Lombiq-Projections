@@ -45,34 +45,41 @@ namespace Lombiq.Projections.Services
 
             var titleSortableTermsPart = contentItem.As<TitleSortableTermsPart>();
 
-            var termList = titleSortableTermsPart.TermParts
+            var termList = titleSortableTermsPart.Terms
                 .Select((t, i) => new { Term = t, Index = i })
                 .Where(x => x.Term.Field == field)
                 .Select(x => x)
                 .OrderByDescending(i => i.Index)
                 .ToList();
 
-            foreach (var term in termList) titleSortableTermsPart.TermParts.RemoveAt(term.Index);
+            foreach (var term in termList) titleSortableTermsPart.Terms.RemoveAt(term.Index);
 
-            terms = TermPart.Sort(terms);
             var firstTerm = true;
 
-            foreach (var term in terms)
+            TitleSortableTermContentItem createTitleSortableTermContentItem(TermPart term) =>
+                new TitleSortableTermContentItem
+                {
+                    TitleSortableTermsPartRecord = titleSortableTermsPart.Record,
+                    TermPartRecord = term?.Record,
+                    Title = term?.As<TitlePart>().Title,
+                    Field = field,
+                    IsFirst = firstTerm
+                };
+
+            if (terms.Any())
             {
-                termList.RemoveAll(t => t.Term.Id == term.Id);
+                terms = TermPart.Sort(terms);
 
-                titleSortableTermsPart.TermParts.Add(
-                    new TitleSortableTermContentItem
-                    {
-                        TitleSortableTermsPartRecord = titleSortableTermsPart.Record,
-                        TermRecord = term.Record,
-                        TitlePartRecord = term.As<TitlePart>().Record,
-                        Field = field,
-                        IsFirstTerm = firstTerm
-                    });
+                foreach (var term in terms)
+                {
+                    termList.RemoveAll(t => t.Term.Id == term.Id);
 
-                if (firstTerm) firstTerm = false;
+                    titleSortableTermsPart.Terms.Add(createTitleSortableTermContentItem(term));
+
+                    if (firstTerm) firstTerm = false;
+                }
             }
+            else titleSortableTermsPart.Terms.Add(createTitleSortableTermContentItem(null));
         }
 
         #region ITaxonomyService proxies without change.
