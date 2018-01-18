@@ -10,7 +10,7 @@ namespace Lombiq.Projections.Models
     /// </summary>
     public class TitleSortableTermsPart : ContentPart<TitleSortableTermsPartRecord>
     {
-        public IList<TitleSortableTermContentItem> TermParts
+        public IList<TitleSortableTermContentItem> Terms
         {
             get { return Record.Terms; }
             set { Record.Terms = value; }

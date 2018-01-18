@@ -10,12 +10,12 @@ using System.Linq;
 namespace Lombiq.Projections.Handlers
 {
     [OrchardFeature(FeatureNames.Taxonomies)]
-    public class TitleSortableTitleSortableTermsPartHandler : ContentHandler
+    public class TitleSortableTermsPartHandler : ContentHandler
     {
         private readonly IContentDefinitionManager _contentDefinitionManager;
 
 
-        public TitleSortableTitleSortableTermsPartHandler(
+        public TitleSortableTermsPartHandler(
             IContentDefinitionManager contentDefinitionManager,
             IRepository<TitleSortableTermsPartRecord> repository)
         {
