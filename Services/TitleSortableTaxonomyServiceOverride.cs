@@ -56,7 +56,7 @@ namespace Lombiq.Projections.Services
 
             var firstTerm = true;
 
-            TitleSortableTermContentItem createTitleSortableTermContentItem(TermPart term) =>
+            Func<TermPart, TitleSortableTermContentItem> createTitleSortableTermContentItem = term =>
                 new TitleSortableTermContentItem
                 {
                     TitleSortableTermsPartRecord = titleSortableTermsPart.Record,
