@@ -101,7 +101,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Constants\FeatureNames.cs" />
+    <Compile Include="Constants\FieldNames.cs" />
+    <Compile Include="Drivers\ProjectionPartDriver.cs" />
     <Compile Include="Handlers\TitleSortableTermsPartHandler.cs" />
+    <Compile Include="Migrations\ProjectionPartMigrations.cs" />
     <Compile Include="Migrations\TitleSortableTermsMigrations.cs" />
     <Compile Include="Models\TitleSortableTermContentItem.cs" />
     <Compile Include="Models\TitleSortableTermsPart.cs" />
@@ -150,6 +153,10 @@
       <Project>{e649ea64-d213-461b-87f7-d67035801443}</Project>
       <Name>Orchard.Taxonomies</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Piedone.HelpfulExtensions\Piedone.HelpfulExtensions.csproj">
+      <Project>{b5329406-c74a-4434-a54d-8b3047cfbf93}</Project>
+      <Name>Piedone.HelpfulExtensions</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Piedone.HelpfulLibraries\Piedone.HelpfulLibraries.csproj">
       <Project>{ea61ad10-39d6-41a9-b12b-227f50c54158}</Project>
       <Name>Piedone.HelpfulLibraries</Name>
@@ -163,6 +170,10 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <Content Include="Placement.info">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Views\Parts.ProjectionPart.ResultCount.cshtml" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

@@ -1,0 +1,5 @@
+﻿@{ 
+    var resultCount = (int)Model.ResultCount;
+}
+
+<span class="queryResultCount">@T.Plural("No results", "{0} result", "{0} results", resultCount, resultCount)</span>
