@@ -1,0 +1,8 @@
+﻿<Placement>
+    <Match ContentPart="ProjectionPart">
+        <Place
+            Fields_Boolean-ShowResultCount="-"
+            Parts_ProjectionPart_ResultCount="/BeforeContent: 1"
+        />
+    </Match>
+</Placement>

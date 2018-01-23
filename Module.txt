@@ -8,7 +8,7 @@ Features:
         Name: Lombiq Projections
         Description: Useful Projection filters.
         Category: Content
-        Dependencies: Orchard.Forms, Orchard.Projections
+        Dependencies: Orchard.Forms, Orchard.Projections, Piedone.HelpfulExtensions, Piedone.HelpfulLibraries.Contents
     Lombiq.Projections.Fields:
         Name: Lombiq Projections - Fields
         Description: Useful Projections filters for Content Fields.
