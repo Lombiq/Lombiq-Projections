@@ -1,8 +1,8 @@
 ﻿<Placement>
     <Match ContentPart="ProjectionPart">
-        <Place
-            Fields_Boolean-ShowResultCount="-"
-            Parts_ProjectionPart_ResultCount="/BeforeContent: 1"
-        />
+        <Place Fields_Boolean-ShowResultCount="-" />
+        <Match DisplayType="Detail">
+            <Place Parts_ProjectionPart_ResultCount="/BeforeContent: 1" />
+        </Match>
     </Match>
 </Placement>
