@@ -162,7 +162,8 @@ namespace Lombiq.Projections.Projections.Filters
             }
 
             Action<IAliasFactory> alias = a => a
-                .ContentPartRecord<TermsPartRecord>().Property(nameof(TermsPartRecord.Terms), "fieldterms");
+                .ContentPartRecord<TermsPartRecord>()
+                .Property(nameof(TermsPartRecord.Terms), $"{part.Name}-{field.Name}-{taxonomy.Name}-terms".ToSafeName());
             Action<IHqlExpressionFactory> expression = e => { };
 
             context.Query.Where(alias, ex => ex.Eq(nameof(TermContentItem.Field), field.Name));
