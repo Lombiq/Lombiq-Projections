@@ -34,7 +34,7 @@ namespace Lombiq.Projections.Projections.Forms
                     .Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
                     .Where(id => !string.IsNullOrEmpty(id))
                     .ToList();
-            Contains = formState[nameof(Contains)] == null ? false : formState[nameof(Contains)];
+            Contains = formState[nameof(Contains)] ?? false;
         }
     }
 

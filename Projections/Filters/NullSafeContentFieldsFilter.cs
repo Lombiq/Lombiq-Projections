@@ -8,8 +8,6 @@ using Orchard.ContentManagement.MetaData.Models;
 using Orchard.Environment.Extensions;
 using Orchard.Localization;
 using Orchard.Projections.Descriptors.Filter;
-// Intellisense is not intelligent enough (yet) to recognise usings that are added only for class refernces in comments.
-using Orchard.Projections.Providers.Filters;
 using Orchard.Projections.Services;
 using Orchard.Utility.Extensions;
 using System;
@@ -19,8 +17,9 @@ using System.Linq;
 namespace Lombiq.Projections.Projections.Filters
 {
     /// <summary>
-    /// An almost identical copy of <see cref="ContentFieldsFilter"/> from the Orchard.Projections module,
-    /// except that items with null value won't be excluded from the result when the filter value is empty.
+    /// An almost identical copy of <see cref="Orchard.Projections.Providers.Filters.ContentFieldsFilter"/>
+    /// from the Orchard.Projections module, except that items with null value won't be excluded
+    /// from the result when the filter value is empty.
     /// This is necessary, because values from string-based fields (e.g. TextField, InputField) are indexed
     /// using <see cref="FieldIndexService"/> as null when the value of the field is an empty string.
     /// </summary>
@@ -71,7 +70,7 @@ namespace Lombiq.Projections.Projections.Filters
 
                         descriptor.Element(
                             type: localPart.Name + "." + localField.Name + "." + storageName,
-                            name: new LocalizedString(localField.DisplayName + (displayName != null ? ":" + displayName.Text : "") + " (empty-safe)"),
+                            name: new LocalizedString(localField.DisplayName + (displayName != null ? ": " + displayName.Text : "") + " (empty-safe)"),
                             description: new LocalizedString(description != null ? description + " (empty-safe)" : "No filter will be applied if the filter value is empty, so items indexed as null or empty in the database won't be excluded from the result."),
                             filter: context => ApplyFilter(context, fieldTypeEditor, storageName, storageType, localPart, localField),
                             display: context => fieldTypeEditor.DisplayFilter(localPart.Name + "." + localField.DisplayName, storageName, context.State),
