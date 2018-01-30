@@ -175,7 +175,7 @@
     <Content Include="Readme.md" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
+    <Content Include="packages.config" />
     <Content Include="Placement.info">
       <SubType>Designer</SubType>
     </Content>
