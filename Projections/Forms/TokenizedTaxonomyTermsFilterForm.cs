@@ -60,7 +60,7 @@ namespace Lombiq.Projections.Projections.Forms
 
         public void Describe(DescribeContext context)
         {
-            Func<IShapeFactory, object> filterForm = shape =>
+            object filterForm(IShapeFactory shape)
             {
                 var taxonomies = _taxonomyService.GetTaxonomies().OrderBy(taxonomy => taxonomy.Name).ToList();
 
@@ -118,7 +118,7 @@ namespace Lombiq.Projections.Projections.Forms
                     });
 
                 return form;
-            };
+            }
 
             context.Form(FormName, filterForm);
         }

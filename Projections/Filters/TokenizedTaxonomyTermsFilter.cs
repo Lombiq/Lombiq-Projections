@@ -47,8 +47,8 @@ namespace Lombiq.Projections.Projections.Filters
             // the user didn't provide a value or "Terms" was evaluated to empty string (e.g. by tokenization).
             if (string.IsNullOrEmpty(values.Terms)) return;
 
-            Action<IAliasFactory> zeroResultAlias = a => a.ContentPartRecord<TermPartRecord>();
-            Action<IHqlExpressionFactory> zeroResultExpression = ex => ex.Eq("Id", 0);
+            void zeroResultAlias(IAliasFactory a) => a.ContentPartRecord<TermPartRecord>();
+            void zeroResultExpression(IHqlExpressionFactory ex) => ex.Eq("Id", 0);
 
             // The user is warned in the Query editor that either of these values being "null" will cause the Query to yield no results.
             if (values.TermProperty == null || values.Operator > 1)

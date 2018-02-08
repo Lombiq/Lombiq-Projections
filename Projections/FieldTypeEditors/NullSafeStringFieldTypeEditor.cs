@@ -24,29 +24,18 @@ namespace Lombiq.Projections.Projections.FieldTypeEditors
         }
 
 
-        public bool CanHandle(Type storageType)
-        {
-            return new[] { typeof(string), typeof(char) }.Contains(storageType);
-        }
+        public bool CanHandle(Type storageType) =>
+            new[] { typeof(string), typeof(char) }.Contains(storageType);
 
-        public string FormName
-        {
-            get { return NullSafeStringFilterForm.FormName; }
-        }
+        public string FormName => NullSafeStringFilterForm.FormName;
 
-        public Action<IHqlExpressionFactory> GetFilterPredicate(dynamic formState)
-        {
-            return NullSafeStringFilterForm.GetFilterPredicate(formState, "Value");
-        }
+        public Action<IHqlExpressionFactory> GetFilterPredicate(dynamic formState) =>
+            NullSafeStringFilterForm.GetFilterPredicate(formState, "Value");
 
-        public LocalizedString DisplayFilter(string fieldName, string storageName, dynamic formState)
-        {
-            return NullSafeStringFilterForm.DisplayFilter(fieldName + " " + storageName, formState, T);
-        }
+        public LocalizedString DisplayFilter(string fieldName, string storageName, dynamic formState) =>
+            NullSafeStringFilterForm.DisplayFilter(fieldName + " " + storageName, formState, T);
 
-        public Action<IAliasFactory> GetFilterRelationship(string aliasName)
-        {
-            return x => x.ContentPartRecord<FieldIndexPartRecord>().Property("StringFieldIndexRecords", aliasName);
-        }
+        public Action<IAliasFactory> GetFilterRelationship(string aliasName) =>
+            x => x.ContentPartRecord<FieldIndexPartRecord>().Property("StringFieldIndexRecords", aliasName);
     }
 }

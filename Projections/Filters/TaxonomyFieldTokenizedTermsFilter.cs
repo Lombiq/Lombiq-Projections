@@ -34,8 +34,6 @@ namespace Lombiq.Projections.Projections.Filters
         private readonly IContentManager _contentManager;
         private readonly ITaxonomyService _taxonomyService;
 
-        private int _termsFilterId;
-
 
         public TaxonomyFieldTokenizedTermsFilter(
             IContentDefinitionManager contentDefinitionManager,
@@ -161,7 +159,7 @@ namespace Lombiq.Projections.Projections.Filters
                 default: return;
             }
 
-            Action<IAliasFactory> alias = a => a
+            void alias(IAliasFactory a) => a
                 .ContentPartRecord<TermsPartRecord>()
                 .Property(nameof(TermsPartRecord.Terms), $"{part.Name}-{field.Name}-{taxonomy.Name}-terms".ToSafeName());
             Action<IHqlExpressionFactory> expression = e => { };

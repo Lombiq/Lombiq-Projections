@@ -14,7 +14,7 @@ namespace Lombiq.Projections.Projections.Forms
     public class NullSafeStringFilterForm : IFormProvider
     {
         private readonly dynamic _shapeFactory;
-        public static string FormName = typeof(NullSafeStringFilterForm).Name;
+        public static string FormName = nameof(NullSafeStringFilterForm);
 
         public Localizer T { get; set; }
 
@@ -27,41 +27,39 @@ namespace Lombiq.Projections.Projections.Forms
 
         public void Describe(DescribeContext context)
         {
-            Func<IShapeFactory, object> form =
-                shape =>
-                {
+            object form(IShapeFactory shape)
+            {
+                var f = _shapeFactory.Form(
+                    Id: FormName,
+                    _Operator: _shapeFactory.SelectList(
+                        Id: "operator", Name: "Operator",
+                        Title: T("Operator"),
+                        Size: 1,
+                        Multiple: false
+                    ),
+                    _Value: _shapeFactory.TextBox(
+                        Id: "value", Name: "Value",
+                        Title: T("Value"),
+                        Classes: new[] { "text medium", "tokenized" },
+                        Description: T("Enter the value the string should be.")
+                        )
+                    );
 
-                    var f = _shapeFactory.Form(
-                        Id: FormName,
-                        _Operator: _shapeFactory.SelectList(
-                            Id: "operator", Name: "Operator",
-                            Title: T("Operator"),
-                            Size: 1,
-                            Multiple: false
-                        ),
-                        _Value: _shapeFactory.TextBox(
-                            Id: "value", Name: "Value",
-                            Title: T("Value"),
-                            Classes: new[] { "text medium", "tokenized" },
-                            Description: T("Enter the value the string should be.")
-                            )
-                        );
+                f._Operator.Add(new SelectListItem { Value = Convert.ToString(StringOperator.Equals), Text = T("Is equal to").Text });
+                f._Operator.Add(new SelectListItem { Value = Convert.ToString(StringOperator.NotEquals), Text = T("Is not equal to").Text });
+                f._Operator.Add(new SelectListItem { Value = Convert.ToString(StringOperator.Contains), Text = T("Contains").Text });
+                f._Operator.Add(new SelectListItem { Value = Convert.ToString(StringOperator.ContainsAny), Text = T("Contains any word").Text });
+                f._Operator.Add(new SelectListItem { Value = Convert.ToString(StringOperator.ContainsAll), Text = T("Contains all words").Text });
+                f._Operator.Add(new SelectListItem { Value = Convert.ToString(StringOperator.Starts), Text = T("Starts with").Text });
+                f._Operator.Add(new SelectListItem { Value = Convert.ToString(StringOperator.NotStarts), Text = T("Does not start with").Text });
+                f._Operator.Add(new SelectListItem { Value = Convert.ToString(StringOperator.Ends), Text = T("Ends with").Text });
+                f._Operator.Add(new SelectListItem { Value = Convert.ToString(StringOperator.NotEnds), Text = T("Does not end with").Text });
+                f._Operator.Add(new SelectListItem { Value = Convert.ToString(StringOperator.NotContains), Text = T("Does not contain").Text });
+                f._Operator.Add(new SelectListItem { Value = Convert.ToString(StringOperator.IsEmpty), Text = T("Is empty").Text });
+                f._Operator.Add(new SelectListItem { Value = Convert.ToString(StringOperator.IsNotEmpty), Text = T("Is not empty").Text });
 
-                    f._Operator.Add(new SelectListItem { Value = Convert.ToString(StringOperator.Equals), Text = T("Is equal to").Text });
-                    f._Operator.Add(new SelectListItem { Value = Convert.ToString(StringOperator.NotEquals), Text = T("Is not equal to").Text });
-                    f._Operator.Add(new SelectListItem { Value = Convert.ToString(StringOperator.Contains), Text = T("Contains").Text });
-                    f._Operator.Add(new SelectListItem { Value = Convert.ToString(StringOperator.ContainsAny), Text = T("Contains any word").Text });
-                    f._Operator.Add(new SelectListItem { Value = Convert.ToString(StringOperator.ContainsAll), Text = T("Contains all words").Text });
-                    f._Operator.Add(new SelectListItem { Value = Convert.ToString(StringOperator.Starts), Text = T("Starts with").Text });
-                    f._Operator.Add(new SelectListItem { Value = Convert.ToString(StringOperator.NotStarts), Text = T("Does not start with").Text });
-                    f._Operator.Add(new SelectListItem { Value = Convert.ToString(StringOperator.Ends), Text = T("Ends with").Text });
-                    f._Operator.Add(new SelectListItem { Value = Convert.ToString(StringOperator.NotEnds), Text = T("Does not end with").Text });
-                    f._Operator.Add(new SelectListItem { Value = Convert.ToString(StringOperator.NotContains), Text = T("Does not contain").Text });
-                    f._Operator.Add(new SelectListItem { Value = Convert.ToString(StringOperator.IsEmpty), Text = T("Is empty").Text });
-                    f._Operator.Add(new SelectListItem { Value = Convert.ToString(StringOperator.IsNotEmpty), Text = T("Is not empty").Text });
-
-                    return f;
-                };
+                return f;
+            }
 
             context.Form(FormName, form);
         }

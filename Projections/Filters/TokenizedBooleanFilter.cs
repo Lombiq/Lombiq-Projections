@@ -10,7 +10,6 @@ using Orchard.Projections.Descriptors.Filter;
 using Orchard.Projections.Models;
 using Orchard.Projections.Services;
 using Orchard.Utility.Extensions;
-using System;
 using System.Linq;
 
 namespace Lombiq.Projections.Projections.Filters
@@ -62,10 +61,8 @@ namespace Lombiq.Projections.Projections.Filters
 
             if (!string.IsNullOrEmpty(valueString))
             {
-                bool value;
-
                 // Returning zero results when the value can't be parsed as a bool.
-                if (!bool.TryParse(valueString, out value))
+                if (!bool.TryParse(valueString, out bool value))
                 {
                     context.Query.Where(r => r.ContentPartRecord<CommonPartRecord>(), p => p.Eq("Id", 0));
 
@@ -75,13 +72,13 @@ namespace Lombiq.Projections.Projections.Filters
                 var propertyName = $"{part.Name}.{field.Name}.";
 
                 // Using an alias with the Join so that different filters on the same type of field won't collide.
-                Action<IAliasFactory> relationship = x => x
+                void relationship(IAliasFactory x) => x
                     .ContentPartRecord<FieldIndexPartRecord>()
                     .Property(nameof(FieldIndexPartRecord.IntegerFieldIndexRecords), propertyName.ToSafeName());
 
-                Action<IHqlExpressionFactory> predicate = x => x.Eq("Value", value ? (long)1 : (long)0);
+                void predicate(IHqlExpressionFactory x) => x.Eq("Value", value ? 1 : 0);
 
-                Action<IHqlExpressionFactory> andPredicate = x => x.And(y => y.Eq("PropertyName", propertyName), predicate);
+                void andPredicate(IHqlExpressionFactory x) => x.And(y => y.Eq("PropertyName", propertyName), predicate);
 
                 context.Query.Where(relationship, andPredicate);
             }

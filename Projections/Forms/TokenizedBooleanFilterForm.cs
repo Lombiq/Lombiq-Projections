@@ -3,7 +3,6 @@ using Orchard.DisplayManagement;
 using Orchard.Environment.Extensions;
 using Orchard.Forms.Services;
 using Orchard.Localization;
-using System;
 
 namespace Lombiq.Projections.Projections.Forms
 {
@@ -11,7 +10,7 @@ namespace Lombiq.Projections.Projections.Forms
     public class TokenizedBooleanFilterForm : IFormProvider
     {
         private readonly dynamic _shapeFactory;
-        public static string FormName = typeof(TokenizedBooleanFilterForm).Name;
+        public static string FormName = nameof(TokenizedBooleanFilterForm);
 
         public Localizer T { get; set; }
 
@@ -19,13 +18,14 @@ namespace Lombiq.Projections.Projections.Forms
         public TokenizedBooleanFilterForm(IShapeFactory shapeFactory)
         {
             _shapeFactory = shapeFactory;
+
             T = NullLocalizer.Instance;
         }
 
 
         public void Describe(DescribeContext context)
         {
-            Func<IShapeFactory, object> filterForm = shape =>
+            object filterForm(IShapeFactory shape)
             {
                 var form = _shapeFactory.Form(
                     Id: FormName,
@@ -38,7 +38,7 @@ namespace Lombiq.Projections.Projections.Forms
                 );
 
                 return form;
-            };
+            }
 
             context.Form(FormName, filterForm);
         }

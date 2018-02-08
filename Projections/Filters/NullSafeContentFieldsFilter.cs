@@ -94,7 +94,7 @@ namespace Lombiq.Projections.Projections.Filters
             // Generate the predicate based on the editor, which has been used.
             Action<IHqlExpressionFactory> predicate = fieldTypeEditor.GetFilterPredicate(context.State);
             // Combines the predicate with a filter on the specific property name of the storage, as implemented in FieldIndexService.
-            Action<IHqlExpressionFactory> andPredicate = x => x.And(y => y.Eq("PropertyName", propertyName), predicate);
+            void andPredicate(IHqlExpressionFactory x) => x.And(y => y.Eq("PropertyName", propertyName), predicate);
 
             // Apply where clause.
             context.Query = context.Query.Where(relationship, andPredicate);

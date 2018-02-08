@@ -23,14 +23,14 @@ namespace Lombiq.Projections.Migrations
                     .Column<int>(termPartRecordColumnName)
                     .Column<int>(titleSortableTermsPartRecordColumnName))
                 .AlterTable(nameof(TitleSortableTermContentItem), table =>
-                    {
-                        table.CreateIndex($"IDX_{titleSortableTermsPartRecordColumnName}", titleSortableTermsPartRecordColumnName);
-                        table.CreateIndex(
-                            $"IDX_{titleSortableTermsPartRecordColumnName}_{nameof(TitleSortableTermContentItem.Field)}_{nameof(TitleSortableTermContentItem.IsFirst)}_{nameof(TitleSortableTermContentItem.Title)}",
-                            titleSortableTermsPartRecordColumnName,
-                            nameof(TitleSortableTermContentItem.Field),
-                            nameof(TitleSortableTermContentItem.IsFirst));
-                    });
+                {
+                    table.CreateIndex($"IDX_{titleSortableTermsPartRecordColumnName}", titleSortableTermsPartRecordColumnName);
+                    table.CreateIndex(
+                        $"IDX_{titleSortableTermsPartRecordColumnName}_{nameof(TitleSortableTermContentItem.Field)}_{nameof(TitleSortableTermContentItem.IsFirst)}_{nameof(TitleSortableTermContentItem.Title)}",
+                        titleSortableTermsPartRecordColumnName,
+                        nameof(TitleSortableTermContentItem.Field),
+                        nameof(TitleSortableTermContentItem.IsFirst));
+                });
 
             SchemaBuilder.CreateTable(nameof(TitleSortableTermsPartRecord), table => table.ContentPartRecord());
 
