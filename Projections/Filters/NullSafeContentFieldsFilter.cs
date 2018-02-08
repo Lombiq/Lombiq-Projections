@@ -84,6 +84,8 @@ namespace Lombiq.Projections.Projections.Filters
 
         public void ApplyFilter(FilterContext context, INullSafeFieldTypeEditor fieldTypeEditor, string storageName, Type storageType, ContentPartDefinition part, ContentPartFieldDefinition field)
         {
+            if (string.IsNullOrEmpty(Convert.ToString(context.State.Value))) return;
+
             var propertyName = string.Join(".", part.Name, field.Name, storageName ?? "");
 
             // Use an alias with the generated property name, so that two filters on the same Field Type won't collide.
