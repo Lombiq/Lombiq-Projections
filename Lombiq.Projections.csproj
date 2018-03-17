@@ -119,6 +119,7 @@
     <Compile Include="Projections\Filters\TaxonomyFieldTokenizedTermsFilter.cs" />
     <Compile Include="Projections\Filters\NullSafeContentFieldsFilter.cs" />
     <Compile Include="Projections\Filters\TokenizedBooleanFilter.cs" />
+    <Compile Include="Projections\Filters\TokenizedTitleFilter.cs" />
     <Compile Include="Projections\Filters\TokenizedContentOwnerFilter.cs" />
     <Compile Include="Projections\Forms\NullSafeStringFilterForm.cs" />
     <Compile Include="Projections\Filters\TokenizedContentTypeFilter.cs" />
