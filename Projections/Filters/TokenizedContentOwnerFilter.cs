@@ -24,35 +24,43 @@ namespace Lombiq.Projections.Projections.Filters
         {
             describe.For(nameof(CommonPartRecord), T("Common Part Record"), T("Common Part Record"))
                 .Element(nameof(TokenizedContentOwnerFilter), T("Tokenized Content Owner"), T("Content items with matching content Owner ID."),
-                    ApplyFilter, DisplayFilter, TokenizedContentOwnerFilterForm.FormName);
+                    ApplyFilter, DisplayFilter, TokenizedValueListFilterForm.FormName);
         }
 
 
         private LocalizedString DisplayFilter(FilterContext context)
         {
-            var values = new TokenizedContentOwnerFilterFormElements(context.State);
+            var formValues = new TokenizedValueListFilterFormElements(context.State);
 
-            return string.IsNullOrEmpty(values.Value) ?
+            return string.IsNullOrEmpty(formValues.ValueString) ?
                 T("Inactive filter: You need to define the value to match with.") :
                 T("Content items where the Owner's User ID {0} the value \"{1}\".",
-                values.EqualsOrContainedIn ? T("is equal to or contained in") : T("is not equal to or not contained in"),
-                values.Value);
+                formValues.EqualsOrContainedIn ? T("is equal to or contained in") : T("is not equal to or not contained in"),
+                formValues.ValueString);
         }
 
         private void ApplyFilter(FilterContext context)
         {
-            var values = new TokenizedContentOwnerFilterFormElements(context.State);
+            var formValues = new TokenizedValueListFilterFormElements(context.State);
+            var values = formValues.Values;
 
-            if (string.IsNullOrEmpty(values.Value)) return;
+            if (!values.Any()) return;
 
-            var userIds = values.Value.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+            // Returning zero results when at least one of the values can't be parsed as an integer.
+            if (values.Any(value => !int.TryParse(value.ToString(), out _)))
+            {
+                context.Query.Where(r => r.ContentPartRecord<CommonPartRecord>(), p => p.Eq("Id", 0));
 
-            if (!userIds.Any()) return;
+                return;
+            }
 
             void commmonPartAlias(IAliasFactory alias) => alias.ContentPartRecord<CommonPartRecord>();
-            void ownerIdExpression(IHqlExpressionFactory expression) => expression.InG(nameof(CommonPartRecord.OwnerId), userIds);
+            Action<IHqlExpressionFactory> ownerIdExpression;
+            if (values.Skip(1).Any())
+                ownerIdExpression = expression => expression.In(nameof(CommonPartRecord.OwnerId), values);
+            else ownerIdExpression = expression => expression.Eq(nameof(CommonPartRecord.OwnerId), values.First());
 
-            if (values.EqualsOrContainedIn) context.Query.Where(commmonPartAlias, ownerIdExpression);
+            if (formValues.EqualsOrContainedIn) context.Query.Where(commmonPartAlias, ownerIdExpression);
             else context.Query.Where(commmonPartAlias, x => x.Not(ownerIdExpression));
         }
     }

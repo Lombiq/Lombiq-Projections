@@ -121,9 +121,8 @@
     <Compile Include="Projections\Filters\TokenizedBooleanFilter.cs" />
     <Compile Include="Projections\Filters\TokenizedContentOwnerFilter.cs" />
     <Compile Include="Projections\Forms\NullSafeStringFilterForm.cs" />
-    <Compile Include="Projections\Forms\TokenizedBooleanFilterForm.cs" />
     <Compile Include="Projections\Filters\TokenizedContentTypeFilter.cs" />
-    <Compile Include="Projections\Forms\TokenizedContentOwnerFilterForm.cs" />
+    <Compile Include="Projections\Forms\TokenizedValueListFilterForm.cs" />
     <Compile Include="Projections\Forms\TokenizedContentTypeFilterForm.cs" />
     <Compile Include="Projections\Filters\TokenizedTaxonomyTermsFilter.cs" />
     <Compile Include="Projections\Forms\TaxonomyFieldTokenizedTermsFilterForm.cs" />

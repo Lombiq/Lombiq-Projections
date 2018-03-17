@@ -1,4 +1,5 @@
-﻿using Lombiq.Projections.Projections.Forms;
+﻿using Lombiq.Projections.Constants;
+using Lombiq.Projections.Projections.Forms;
 using Orchard.ContentManagement;
 using Orchard.ContentManagement.MetaData;
 using Orchard.ContentManagement.MetaData.Models;
@@ -10,11 +11,12 @@ using Orchard.Projections.Descriptors.Filter;
 using Orchard.Projections.Models;
 using Orchard.Projections.Services;
 using Orchard.Utility.Extensions;
+using System;
 using System.Linq;
 
 namespace Lombiq.Projections.Projections.Filters
 {
-    [OrchardFeature("Lombiq.Projections.Fields")]
+    [OrchardFeature(FeatureNames.Fields)]
     public class TokenizedBooleanFilter : IFilterProvider
     {
         private readonly IContentDefinitionManager _contentDefinitionManager;
@@ -34,7 +36,7 @@ namespace Lombiq.Projections.Projections.Filters
         {
             foreach (var part in _contentDefinitionManager.ListPartDefinitions())
             {
-                var booleanFields = part.Fields.Where(field => field.FieldDefinition.Name == typeof(BooleanField).Name);
+                var booleanFields = part.Fields.Where(field => field.FieldDefinition.Name == nameof(BooleanField));
 
                 if (!booleanFields.Any()) continue;
 
@@ -45,12 +47,12 @@ namespace Lombiq.Projections.Projections.Filters
 
                 foreach (var field in booleanFields)
                     descriptor.Element(
-                        typeof(TokenizedBooleanFilter).Name,
+                        nameof(TokenizedBooleanFilter),
                         T("{0}: Tokenized Value", field.DisplayName),
                         T("The tokenized boolean value of the field."),
                         context => ApplyFilter(context, part, field),
                         context => DisplayFilter(context, part, field),
-                        TokenizedBooleanFilterForm.FormName
+                        TokenizedValueListFilterForm.FormName
                     );
             }
         }
@@ -59,38 +61,51 @@ namespace Lombiq.Projections.Projections.Filters
         {
             string valueString = context.State.Value;
 
-            if (!string.IsNullOrEmpty(valueString))
+            var formValues = new TokenizedValueListFilterFormElements(context.State);
+            var values = formValues.Values;
+
+            if (!values.Any()) return;
+
+            // Returning zero results when at least one of the values can't be parsed as a bool.
+            if (values.Any(value => !bool.TryParse(value.ToString(), out _)))
             {
-                // Returning zero results when the value can't be parsed as a bool.
-                if (!bool.TryParse(valueString, out bool value))
-                {
-                    context.Query.Where(r => r.ContentPartRecord<CommonPartRecord>(), p => p.Eq("Id", 0));
+                context.Query.Where(r => r.ContentPartRecord<CommonPartRecord>(), p => p.Eq("Id", 0));
 
-                    return;
-                }
-
-                var propertyName = $"{part.Name}.{field.Name}.";
-
-                // Using an alias with the Join so that different filters on the same type of field won't collide.
-                void relationship(IAliasFactory x) => x
-                    .ContentPartRecord<FieldIndexPartRecord>()
-                    .Property(nameof(FieldIndexPartRecord.IntegerFieldIndexRecords), propertyName.ToSafeName());
-
-                void predicate(IHqlExpressionFactory x) => x.Eq("Value", value ? 1 : 0);
-
-                void andPredicate(IHqlExpressionFactory x) => x.And(y => y.Eq("PropertyName", propertyName), predicate);
-
-                context.Query.Where(relationship, andPredicate);
+                return;
             }
+
+            var booleanValues = values.Select(value => bool.Parse(value.ToString()) ? 1 : 0).ToArray();
+            var propertyName = $"{part.Name}.{field.Name}.";
+
+            // Using an alias with the Join so that different filters on the same type of field won't collide.
+            void relationship(IAliasFactory x) => x
+                .ContentPartRecord<FieldIndexPartRecord>()
+                .Property(nameof(FieldIndexPartRecord.IntegerFieldIndexRecords), propertyName.ToSafeName());
+
+            Action<IHqlExpressionFactory> valueExpression;
+            if (values.Skip(1).Any())
+                valueExpression = expression => expression.In("Value", booleanValues);
+            else valueExpression = expression => expression.Eq("Value", booleanValues.First());
+
+            Action<IHqlExpressionFactory> equalsOrNotExpression;
+            if (formValues.EqualsOrContainedIn)
+                equalsOrNotExpression = valueExpression;
+            else equalsOrNotExpression = expression => expression.Not(valueExpression);
+
+            context.Query.Where(relationship, x => x.And(y => y.Eq("PropertyName", propertyName), equalsOrNotExpression));
         }
 
         public LocalizedString DisplayFilter(FilterContext context, ContentPartDefinition part, ContentPartFieldDefinition field)
         {
-            string value = context.State.Value;
+            var formValues = new TokenizedValueListFilterFormElements(context.State);
 
-            return string.IsNullOrEmpty(value) ?
+            return string.IsNullOrEmpty(formValues.ValueString) ?
                 T("Inactive filter: Undefined value for {0}.{1}.", part.Name, field.Name) :
-                T("{0}.{1} equals \"{2}\".", part.Name, field.Name, value);
+                T("{0}.{1} {2} \"{3}\".",
+                    part.Name,
+                    field.Name,
+                    formValues.EqualsOrContainedIn ? T("is equal to or contained in") : T("is not equal to or not contained in"),
+                    formValues.ValueString);
         }
     }
 }

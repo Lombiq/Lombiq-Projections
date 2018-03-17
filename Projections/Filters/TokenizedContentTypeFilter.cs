@@ -1,9 +1,9 @@
 ﻿using Lombiq.Projections.Projections.Forms;
 using Orchard.Localization;
 using Orchard.Projections.Descriptors.Filter;
+using Orchard.Projections.Services;
 using System;
 using System.Linq;
-using IFilterProvider = Orchard.Projections.Services.IFilterProvider;
 
 namespace Lombiq.Projections.Projections.Filters
 {
