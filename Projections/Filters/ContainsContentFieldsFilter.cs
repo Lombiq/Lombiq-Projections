@@ -1,6 +1,5 @@
 ﻿using Lombiq.Projections.Constants;
 using Lombiq.Projections.Helpers;
-using Lombiq.Projections.Projections.FieldTypeEditors;
 using Lombiq.Projections.Projections.Forms;
 using Orchard.ContentManagement;
 using Orchard.ContentManagement.Drivers;
@@ -23,17 +22,14 @@ namespace Lombiq.Projections.Projections.Filters
     {
         private readonly IContentDefinitionManager _contentDefinitionManager;
         private readonly IEnumerable<IContentFieldDriver> _contentFieldDrivers;
-        private readonly IEnumerable<INullSafeFieldTypeEditor> _nullSafeFieldTypeEditors;
 
 
         public ContainsContentFieldsFilter(
             IContentDefinitionManager contentDefinitionManager,
-            IEnumerable<IContentFieldDriver> contentFieldDrivers,
-            IEnumerable<INullSafeFieldTypeEditor> nullSafeFieldTypeEditors)
+            IEnumerable<IContentFieldDriver> contentFieldDrivers)
         {
             _contentDefinitionManager = contentDefinitionManager;
             _contentFieldDrivers = contentFieldDrivers;
-            _nullSafeFieldTypeEditors = nullSafeFieldTypeEditors;
 
             T = NullLocalizer.Instance;
         }
