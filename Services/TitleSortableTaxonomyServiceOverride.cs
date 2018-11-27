@@ -68,8 +68,6 @@ namespace Lombiq.Projections.Services
 
             if (terms.Any())
             {
-                terms = TermPart.Sort(terms);
-
                 foreach (var term in terms)
                 {
                     termList.RemoveAll(t => t.Term.Id == term.Id);
