@@ -107,6 +107,7 @@
     <Compile Include="Constants\FeatureNames.cs" />
     <Compile Include="Constants\FieldNames.cs" />
     <Compile Include="Drivers\ProjectionPartDriver.cs" />
+    <Compile Include="Extensions\TypeExtensions.cs" />
     <Compile Include="Helpers\FieldIndexHelper.cs" />
     <Compile Include="Handlers\TitleSortableTermsPartHandler.cs" />
     <Compile Include="Migrations\ProjectionPartMigrations.cs" />
@@ -114,6 +115,7 @@
     <Compile Include="Models\TitleSortableTermContentItem.cs" />
     <Compile Include="Models\TitleSortableTermsPart.cs" />
     <Compile Include="Models\TitleSortableTermsPartRecord.cs" />
+    <Compile Include="Projections\Filters\ChainableMemberBindingFilter.cs" />
     <Compile Include="Projections\Filters\ContainsContentFieldsFilter.cs" />
     <Compile Include="Projections\Filters\EmptySafeContentFieldsFilter.cs" />
     <Compile Include="Projections\Filters\TaxonomyFieldTokenizedTermsFilter.cs" />
@@ -128,6 +130,7 @@
     <Compile Include="Projections\Forms\TaxonomyFieldTokenizedTermsFilterForm.cs" />
     <Compile Include="Projections\Forms\TokenizedTaxonomyTermsFilterForm.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Services\IChainableMemberBindingProvider.cs" />
     <Compile Include="Services\TitleSortableTaxonomyServiceOverride.cs" />
   </ItemGroup>
   <ItemGroup>

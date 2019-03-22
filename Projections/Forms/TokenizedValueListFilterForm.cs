@@ -8,14 +8,19 @@ namespace Lombiq.Projections.Projections.Forms
 {
     public class TokenizedValueListFilterFormElements
     {
-        public bool EqualsOrContainedIn { get; set; }
-        public string ValueString { get; set; }
-        public object[] Values { get; set; }
+        public bool EqualsOrContainedIn { get; }
+        public string FilterRelationshipString { get; }
+        public ValueFilterRelationship FilterRelationship { get; }
+        public string ValueString { get; }
+        public object[] Values { get; }
 
 
         public TokenizedValueListFilterFormElements(dynamic formState)
         {
             EqualsOrContainedIn = formState[nameof(EqualsOrContainedIn)] ?? true;
+            FilterRelationshipString = formState[nameof(FilterRelationshipString)];
+            FilterRelationship = Enum.TryParse(FilterRelationshipString, out ValueFilterRelationship filterRelationship) ?
+                filterRelationship : ValueFilterRelationship.Or;
             ValueString = formState[nameof(ValueString)];
             Values = string.IsNullOrEmpty(ValueString) ?
                 new object[] { } :
@@ -25,6 +30,12 @@ namespace Lombiq.Projections.Projections.Forms
                     .Where(value => value.ToString() != "")
                     .ToArray();
         }
+    }
+
+    public enum ValueFilterRelationship
+    {
+        Or,
+        And
     }
 
     public class TokenizedValueListFilterForm : IFormProvider
@@ -59,6 +70,13 @@ namespace Lombiq.Projections.Projections.Forms
                         Id: "valueString", Name: nameof(TokenizedValueListFilterFormElements.ValueString),
                         Classes: new[] { "text", "medium", "tokenized" },
                         Title: T("Value(s)"),
-                        Description: T("The optionally tokenized comma-separated list of values."))));
+                        Description: T("The optionally tokenized comma-separated list of values.")),
+                    _Relationship: _shapeFactory.Textbox(
+                        Id: "filterRelationshipString", Name: nameof(TokenizedValueListFilterFormElements.FilterRelationshipString),
+                        Classes: new[] { "text", "medium", "tokenized" },
+                        Title: T("Filter relatioship"),
+                        Description: T("Defines the operator between the filter of individual values. Accepted values: {0}. Default value: \"{1}\".",
+                            string.Join(", ", Enum.GetNames(typeof(ValueFilterRelationship))),
+                            ValueFilterRelationship.Or.ToString()))));
     }
 }
