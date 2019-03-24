@@ -7,6 +7,7 @@ using Orchard.Projections.Descriptors.Filter;
 using Orchard.Projections.Services;
 using Orchard.Services;
 using Orchard.Utility.Extensions;
+using Piedone.HelpfulLibraries.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -132,72 +133,49 @@ namespace Lombiq.Projections.Projections.Filters
 
             #endregion
 
-            var lastRecordReferencePropertyName = recordReferencePropertyNames.Last();
+            var filterPropertyName = string.Join(".", propertyNames.Skip(recordReferencePropertyNames.Count));
 
-            IAliasFactory baseAlias(IAliasFactory a)
+            void alias(IAliasFactory a, string value = "")
             {
                 // Start with a join on the initial ContentPart(Version)Record.
                 a = a.ContentPartRecord(binding.ContentPartRecordType);
-                // Go through all the properties except the last one - see why at the definion of the alias
-                // used for multiple values with "And" relationship.
+                // Go through all the properties except the last one, because the last join will get a unique alias.
                 foreach (var name in recordReferencePropertyNames.Take(recordReferencePropertyNames.Count - 1))
                     // And then join the current table represented by the property.
                     a = a.Property(name, name.HtmlClassify());
 
-                return a;
+                // Then create a unique alias for the last join using the remaining property path and value.
+                a.Property(recordReferencePropertyNames.Last(), $"{filterPropertyName}.{value}".HtmlClassify());
             }
 
-            void singleValueAlias(IAliasFactory a) =>
-                // This alias will be used if the filter relationship is not "And",
-                // so we'll just join the table represented by the last property too.
-                a = baseAlias(a).Property(
-                    lastRecordReferencePropertyName,
-                    lastRecordReferencePropertyName.HtmlClassify());
-
-            Action<IHqlExpressionFactory> expression = e => { };
-
-            var filterPropertyName = string.Join(".", propertyNames.Skip(recordReferencePropertyNames.Count));
-            // Building the query is more complex when multiple filter values are present.
-            if (values.Skip(1).Any())
+            if (values.Any())
             {
+                Action<IHqlExpressionFactory> expression;
+
                 switch (formValues.FilterRelationship)
                 {
-                    /* Filtering on multiple values with an "Or" relationship is very similar to filtering on a single value,
-                     * so much so that filtering on a single value could use this logic instead its own,
-                     * but it's easier to understand the control flow like this. */
+                    // Filtering on multiple values with an "Or" relationship can use the same alias.
                     case ValueFilterRelationship.Or:
-                        expression = e => e.In(filterPropertyName, values);
+                        expression = e => e.AggregateOr(
+                            (ex, value, property) => formValues.GetStringOperatorFilterExpression(ex, value.ToString(), property), values, filterPropertyName);
 
-                        context.Query.Where(singleValueAlias, expression);
+                        context.Query.Where(a => alias(a), expression);
 
                         break;
-                    /* Here comes the fun part: When filtering on multiple values with an "And" relationship,
-                     * each value requires its own unique alias on the last join,
-                     * otherwise the query won't give any results. */
+                    /* When filtering on multiple values with an "And" relationship, each value requires its own
+                     * unique alias on the last join, otherwise the query won't give any results. */
                     case ValueFilterRelationship.And:
                         foreach (var value in values)
                         {
-                            void alias(IAliasFactory a) =>
-                                a = baseAlias(a).Property(
-                                    lastRecordReferencePropertyName,
-                                    $"{lastRecordReferencePropertyName.CamelFriendly()}_{value.ToString().HtmlClassify()}");
+                            expression = e => formValues.GetStringOperatorFilterExpression(e, value, filterPropertyName);
 
-                            expression = e => e.Eq(filterPropertyName, value);
-
-                            context.Query.Where(alias, expression);
+                            context.Query.Where(a => alias(a, value), expression);
                         }
 
                         break;
                     default:
                         break;
                 }
-            }
-            // Otherwise it's a lot simpler, e.g. we don't care about the filter relationship.
-            else
-            {
-                expression = e => e.Eq(filterPropertyName, values.First());
-
-                context.Query.Where(singleValueAlias, expression);
             }
         }
     }

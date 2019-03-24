@@ -1,4 +1,5 @@
-﻿using Orchard.DisplayManagement;
+﻿using Orchard.ContentManagement;
+using Orchard.DisplayManagement;
 using Orchard.Forms.Services;
 using Orchard.Localization;
 using Orchard.Services;
@@ -10,40 +11,68 @@ namespace Lombiq.Projections.Projections.Forms
     public class TokenizedValueListFilterFormElements
     {
         public bool Matches { get; }
+        public string StringOperatorString { get; }
+        public StringOperator StringOperator { get; }
         public string FilterRelationshipString { get; }
         public ValueFilterRelationship FilterRelationship { get; }
         public string ValueString { get; }
-        public object[] Values { get; }
+        public string[] Values { get; }
 
 
         public TokenizedValueListFilterFormElements(dynamic formState)
         {
             Matches = formState[nameof(Matches)] ?? true;
+            StringOperatorString = formState[nameof(StringOperatorString)];
+            StringOperator = Enum.TryParse(StringOperatorString, out StringOperator stringOperator) ?
+                stringOperator : StringOperator.Equals;
             FilterRelationshipString = formState[nameof(FilterRelationshipString)];
             FilterRelationship = Enum.TryParse(FilterRelationshipString, out ValueFilterRelationship filterRelationship) ?
                 filterRelationship : ValueFilterRelationship.Or;
             ValueString = formState[nameof(ValueString)];
             Values = string.IsNullOrEmpty(ValueString) ?
-                new object[] { } :
-                ValueString.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries).ToArray();
+                new string[] { } :
+                ValueString.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Distinct().ToArray();
         }
     }
 
     public static class TokenizedValueListFilterFormElementsExtensions
     {
-        public static object[] GetValuesFromJsonString(
+        public static string[] GetValuesFromJsonString(
             this TokenizedValueListFilterFormElements elements,
             IJsonConverter jsonConverter = null) =>
             string.IsNullOrEmpty(elements.ValueString) ?
-                new object[] { } :
+                new string[] { } :
                 jsonConverter != null && jsonConverter.TryDeserialize<string[]>(elements.ValueString, out var values) ?
-                    values : elements.Values;
+                    values.Distinct().ToArray() : elements.Values;
+
+        public static void GetStringOperatorFilterExpression(
+            this TokenizedValueListFilterFormElements elements, IHqlExpressionFactory expression, string value, string property)
+        {
+            switch (elements.StringOperator)
+            {
+                case StringOperator.ContainedIn:
+                    expression.Like(property, Convert.ToString(value), HqlMatchMode.Anywhere);
+
+                    break;
+                case StringOperator.Equals:
+                default:
+                    expression.Eq(property, value);
+
+                    break;
+            }
+        }
     }
 
     public enum ValueFilterRelationship
     {
         Or,
         And
+    }
+
+    public enum StringOperator
+    {
+        Equals,
+        ContainedIn
     }
 
     public class TokenizedValueListFilterForm : IFormProvider
@@ -74,6 +103,13 @@ namespace Lombiq.Projections.Projections.Forms
                         _NoMatch: _shapeFactory.Radio(
                             Id: "noMatch", Name: nameof(TokenizedValueListFilterFormElements.Matches),
                             Title: T("Value(s) do(es)n't match"), Value: "false")),
+                    _StringOperator: _shapeFactory.FieldSet(
+                        _Equals: _shapeFactory.Radio(
+                            Id: "equals", Name: nameof(TokenizedValueListFilterFormElements.StringOperatorString),
+                            Title: T("Value(s) equal(s)"), Value: StringOperator.Equals, Checked: true),
+                        _ContainedIn: _shapeFactory.Radio(
+                            Id: "containedIn", Name: nameof(TokenizedValueListFilterFormElements.StringOperatorString),
+                            Title: T("Value(s) is/are contained in"), Value: StringOperator.ContainedIn)),
                     _Value: _shapeFactory.Textbox(
                         Id: "valueString", Name: nameof(TokenizedValueListFilterFormElements.ValueString),
                         Classes: new[] { "text", "medium", "tokenized" },
