@@ -1,6 +1,7 @@
 ﻿using Orchard.DisplayManagement;
 using Orchard.Forms.Services;
 using Orchard.Localization;
+using Orchard.Services;
 using System;
 using System.Linq;
 
@@ -24,12 +25,19 @@ namespace Lombiq.Projections.Projections.Forms
             ValueString = formState[nameof(ValueString)];
             Values = string.IsNullOrEmpty(ValueString) ?
                 new object[] { } :
-                ValueString
-                    .Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
-                    .Select(value => (object)value.ToString().Trim())
-                    .Where(value => value.ToString() != "")
-                    .ToArray();
+                ValueString.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries).ToArray();
         }
+    }
+
+    public static class TokenizedValueListFilterFormElementsExtensions
+    {
+        public static object[] GetValuesFromJsonString(
+            this TokenizedValueListFilterFormElements elements,
+            IJsonConverter jsonConverter = null) =>
+            string.IsNullOrEmpty(elements.ValueString) ?
+                new object[] { } :
+                jsonConverter != null && jsonConverter.TryDeserialize<string[]>(elements.ValueString, out var values) ?
+                    values : elements.Values;
     }
 
     public enum ValueFilterRelationship

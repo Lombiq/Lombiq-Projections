@@ -5,6 +5,7 @@ using Orchard.ContentManagement;
 using Orchard.Localization;
 using Orchard.Projections.Descriptors.Filter;
 using Orchard.Projections.Services;
+using Orchard.Services;
 using Orchard.Utility.Extensions;
 using System;
 using System.Collections.Generic;
@@ -15,14 +16,17 @@ namespace Lombiq.Projections.Projections.Filters
     public class ChainableMemberBindingFilter : IFilterProvider
     {
         private readonly IEnumerable<IChainableMemberBindingProvider> _chainableMemberBindingProviders;
+        private readonly IJsonConverter _jsonConverter;
 
         public Localizer T { get; set; }
 
 
         public ChainableMemberBindingFilter(
-            IEnumerable<IChainableMemberBindingProvider> chainableMemberBindingProviders)
+            IEnumerable<IChainableMemberBindingProvider> chainableMemberBindingProviders,
+            IJsonConverter jsonConverter)
         {
             _chainableMemberBindingProviders = chainableMemberBindingProviders;
+            _jsonConverter = jsonConverter;
 
             T = NullLocalizer.Instance;
         }
@@ -69,7 +73,7 @@ namespace Lombiq.Projections.Projections.Filters
                 values.ValueString,
                 binding.ContentPartRecordType.Name,
                 binding.PropertyPath,
-                values.FilterRelationshipString);
+                string.IsNullOrEmpty(values.FilterRelationshipString) ? values.FilterRelationship.ToString() : values.FilterRelationshipString);
         }
 
         public void ApplyFilter(FilterContext context, ChainableMemberBinding binding)
@@ -84,8 +88,10 @@ namespace Lombiq.Projections.Projections.Filters
 
             var formValues = new TokenizedValueListFilterFormElements(context.State);
 
+            var values = formValues.GetValuesFromJsonString(_jsonConverter);
+
             // If there are no values to filter with, then do nothing.
-            if (!formValues.Values.Any()) return;
+            if (!values.Any()) return;
 
             #endregion
 
@@ -152,7 +158,7 @@ namespace Lombiq.Projections.Projections.Filters
 
             var filterPropertyName = string.Join(".", propertyNames.Skip(recordReferencePropertyNames.Count));
             // Building the query is more complex when multiple filter values are present.
-            if (formValues.Values.Skip(1).Any())
+            if (values.Skip(1).Any())
             {
                 switch (formValues.FilterRelationship)
                 {
@@ -160,7 +166,7 @@ namespace Lombiq.Projections.Projections.Filters
                      * so much so that filtering on a single value could use this logic instead its own,
                      * but it's easier to understand the control flow like this. */
                     case ValueFilterRelationship.Or:
-                        expression = e => e.In(filterPropertyName, formValues.Values);
+                        expression = e => e.In(filterPropertyName, values);
 
                         context.Query.Where(singleValueAlias, expression);
 
@@ -169,7 +175,7 @@ namespace Lombiq.Projections.Projections.Filters
                      * each value requires its own unique alias on the last join,
                      * otherwise the query won't give any results. */
                     case ValueFilterRelationship.And:
-                        foreach (var value in formValues.Values)
+                        foreach (var value in values)
                         {
                             void alias(IAliasFactory a) =>
                                 a = baseAlias(a).Property(
@@ -189,7 +195,7 @@ namespace Lombiq.Projections.Projections.Filters
             // Otherwise it's a lot simpler, e.g. we don't care about the filter relationship.
             else
             {
-                expression = e => e.Eq(filterPropertyName, formValues.Values.First());
+                expression = e => e.Eq(filterPropertyName, values.First());
 
                 context.Query.Where(singleValueAlias, expression);
             }
