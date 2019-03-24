@@ -88,7 +88,7 @@ namespace Lombiq.Projections.Projections.Filters
             else valueExpression = expression => expression.Eq("Value", booleanValues.First());
 
             Action<IHqlExpressionFactory> equalsOrNotExpression;
-            if (formValues.EqualsOrContainedIn)
+            if (formValues.Matches)
                 equalsOrNotExpression = valueExpression;
             else equalsOrNotExpression = expression => expression.Not(valueExpression);
 
@@ -104,7 +104,7 @@ namespace Lombiq.Projections.Projections.Filters
                 T("{0}.{1} {2} \"{3}\".",
                     part.Name,
                     field.Name,
-                    formValues.EqualsOrContainedIn ? T("is equal to or contained in") : T("is not equal to or not contained in"),
+                    formValues.Matches ? T("matches") : T("doesn't match"),
                     formValues.ValueString);
         }
     }

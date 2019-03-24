@@ -33,7 +33,7 @@ namespace Lombiq.Projections.Projections.Filters
             return string.IsNullOrEmpty(formValues.ValueString) ?
                 T("Inactive filter: You need to define the value to match with.") :
                 T("Content item Id {0} the value \"{1}\".",
-                formValues.EqualsOrContainedIn ? T("is equal to or contained in") : T("is not equal to or not contained in"),
+                formValues.Matches ? T("matches") : T("doesn't match"),
                 formValues.ValueString);
         }
 
@@ -48,7 +48,7 @@ namespace Lombiq.Projections.Projections.Filters
                 .Where(value => int.TryParse(value.ToString(), out var _))
                 .Select(value => int.Parse(value.ToString()));
 
-            if (formValues.EqualsOrContainedIn) context.Query.WhereIdIn(ids);
+            if (formValues.Matches) context.Query.WhereIdIn(ids);
             else context.Query.WhereIdNotIn(ids);
         }
     }

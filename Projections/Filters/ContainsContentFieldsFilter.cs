@@ -78,7 +78,7 @@ namespace Lombiq.Projections.Projections.Filters
                 T("Inactive filter: You need to define the value to match with.") :
                 T("{0} {1} the value \"{2}\".",
                 propertyName,
-                formValues.EqualsOrContainedIn ? T("is equal to or contained in") : T("is not equal to or not contained in"),
+                formValues.Matches ? T("matches") : T("doesn't match"),
                 formValues.ValueString);
         }
 
@@ -106,7 +106,7 @@ namespace Lombiq.Projections.Projections.Filters
                 filterExpression = ex => ex.And(propertyNameExpression, rex => rex.In("Value", values));
             else filterExpression = ex => ex.And(propertyNameExpression, rex => rex.Eq("Value", values.First()));
 
-            if (formValues.EqualsOrContainedIn) context.Query.Where(fieldIndexAlias, filterExpression);
+            if (formValues.Matches) context.Query.Where(fieldIndexAlias, filterExpression);
             else context.Query.Where(fieldIndexAlias, x => x.Not(filterExpression));
         }
     }

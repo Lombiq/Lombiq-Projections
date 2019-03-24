@@ -35,7 +35,7 @@ namespace Lombiq.Projections.Projections.Filters
             return string.IsNullOrEmpty(formValues.ValueString) ?
                 T("Inactive filter: You need to define the value to match with.") :
                 T("Content items where the Owner's User ID {0} the value \"{1}\".",
-                formValues.EqualsOrContainedIn ? T("is equal to or contained in") : T("is not equal to or not contained in"),
+                formValues.Matches ? T("matches") : T("doesn't match"),
                 formValues.ValueString);
         }
 
@@ -60,7 +60,7 @@ namespace Lombiq.Projections.Projections.Filters
                 ownerIdExpression = expression => expression.In(nameof(CommonPartRecord.OwnerId), values);
             else ownerIdExpression = expression => expression.Eq(nameof(CommonPartRecord.OwnerId), values.First());
 
-            if (formValues.EqualsOrContainedIn) context.Query.Where(commmonPartAlias, ownerIdExpression);
+            if (formValues.Matches) context.Query.Where(commmonPartAlias, ownerIdExpression);
             else context.Query.Where(commmonPartAlias, x => x.Not(ownerIdExpression));
         }
     }

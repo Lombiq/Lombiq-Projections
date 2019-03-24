@@ -35,7 +35,7 @@ namespace Lombiq.Projections.Projections.Filters
             return string.IsNullOrEmpty(formValues.ValueString) ?
                 T("Inactive filter: You need to define the value to match with.") :
                 T("Content items where the Title {0} the value \"{1}\".",
-                formValues.EqualsOrContainedIn ? T("is equal to or contained in") : T("is not equal to or not contained in"),
+                formValues.Matches ? T("matches") : T("doesn't match"),
                 formValues.ValueString);
         }
 
@@ -52,7 +52,7 @@ namespace Lombiq.Projections.Projections.Filters
                 titleExpression = expression => expression.In(nameof(TitlePartRecord.Title), values);
             else titleExpression = expression => expression.Eq(nameof(TitlePartRecord.Title), values.First());
 
-            if (formValues.EqualsOrContainedIn) context.Query.Where(titlePartAlias, titleExpression);
+            if (formValues.Matches) context.Query.Where(titlePartAlias, titleExpression);
             else context.Query.Where(titlePartAlias, x => x.Not(titleExpression));
         }
     }
