@@ -108,6 +108,7 @@
     <Compile Include="Constants\FieldNames.cs" />
     <Compile Include="Drivers\ProjectionPartDriver.cs" />
     <Compile Include="Extensions\TypeExtensions.cs" />
+    <Compile Include="Helpers\ChainableMemberBindingHelper.cs" />
     <Compile Include="Helpers\FieldIndexHelper.cs" />
     <Compile Include="Handlers\TitleSortableTermsPartHandler.cs" />
     <Compile Include="Migrations\ProjectionPartMigrations.cs" />

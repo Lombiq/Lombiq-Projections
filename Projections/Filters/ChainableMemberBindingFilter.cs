@@ -1,4 +1,5 @@
 ﻿using Lombiq.Projections.Extensions;
+using Lombiq.Projections.Helpers;
 using Lombiq.Projections.Projections.Forms;
 using Lombiq.Projections.Services;
 using Orchard.ContentManagement;
@@ -96,57 +97,14 @@ namespace Lombiq.Projections.Projections.Filters
 
             #endregion
 
-            #region Preparation
+            var recordListReferencePropertyNames = ChainableMemberBindingHelper
+                .GetRecordListReferencePropertyNames(binding.ContentPartRecordType, binding.PropertyPath);
 
-            // The starting point of the reference chain is the ContentPartRecord defined by the binding.
-            var currentRecordType = binding.ContentPartRecordType;
+            if (recordListReferencePropertyNames == null) return;
 
-            // Unpack the property path defined the binding to be able to find the last property that will represent a 1-to-many connection.
-            var propertyNames = binding.PropertyPath.Split(new char[] { '.' }, StringSplitOptions.RemoveEmptyEntries);
-
-            // This will store the names of the properties that 
-            var recordReferencePropertyNames = new List<string>();
-
-            // Walking through the property path until we encounter a halting condition.
-            foreach (var propertyName in propertyNames)
-            {
-                // If the current record type is invalid for some reason, then do nothing.
-                if (currentRecordType == null) return;
-
-                // Fetching the next property in the path from the current record type.
-                var property = currentRecordType.GetProperty(propertyName);
-
-                // If the property is not found, then do nothing.
-                if (property == null) return;
-
-                // If a property's type is a generic and it also implements IEnumerable, then it represents a 1-to-many connection.
-                if (property.PropertyType.IsGenericType &&
-                    property.PropertyType.GetInterfaces().Any(@interface => @interface.Name == typeof(IEnumerable<>).Name))
-                {
-                    recordReferencePropertyNames.Add(propertyName);
-                    currentRecordType = property.PropertyType.GetGenericArguments().FirstOrDefault();
-                }
-                // If the property doesn't represent a 1-to-many connection,
-                // then we'll just use it to filter (although it can still represent a table join for a single record).
-                else break;
-            }
-
-            #endregion
-
-            var filterPropertyName = string.Join(".", propertyNames.Skip(recordReferencePropertyNames.Count));
-
-            void alias(IAliasFactory a, string value = "")
-            {
-                // Start with a join on the initial ContentPart(Version)Record.
-                a = a.ContentPartRecord(binding.ContentPartRecordType);
-                // Go through all the properties except the last one, because the last join will get a unique alias.
-                foreach (var name in recordReferencePropertyNames.Take(recordReferencePropertyNames.Count - 1))
-                    // And then join the current table represented by the property.
-                    a = a.Property(name, name.HtmlClassify());
-
-                // Then create a unique alias for the last join using the remaining property path and value.
-                a.Property(recordReferencePropertyNames.Last(), $"{filterPropertyName}.{value}".HtmlClassify());
-            }
+            var filterPropertyName = string.Join(".", binding.PropertyPath
+                .Split(new char[] { '.' }, StringSplitOptions.RemoveEmptyEntries)
+                .Skip(recordListReferencePropertyNames.Count()));
 
             if (values.Any())
             {
@@ -159,7 +117,10 @@ namespace Lombiq.Projections.Projections.Filters
                         expression = e => e.AggregateOr(
                             (ex, value, property) => formValues.GetStringOperatorFilterExpression(ex, value.ToString(), property), values, filterPropertyName);
 
-                        context.Query.Where(a => alias(a), expression);
+                        context.Query.Where(alias =>
+                            ChainableMemberBindingHelper.GetChainableMemberBindingAlias(
+                                alias, binding.ContentPartRecordType, recordListReferencePropertyNames, filterPropertyName),
+                            expression);
 
                         break;
                     /* When filtering on multiple values with an "And" relationship, each value requires its own
@@ -169,7 +130,10 @@ namespace Lombiq.Projections.Projections.Filters
                         {
                             expression = e => formValues.GetStringOperatorFilterExpression(e, value, filterPropertyName);
 
-                            context.Query.Where(a => alias(a, value), expression);
+                            context.Query.Where(alias =>
+                                ChainableMemberBindingHelper.GetChainableMemberBindingAlias(
+                                    alias, binding.ContentPartRecordType, recordListReferencePropertyNames, filterPropertyName, value),
+                                expression);
                         }
 
                         break;
