@@ -3,7 +3,7 @@ using Orchard.Localization;
 using System;
 using System.Collections.Generic;
 
-namespace Lombiq.Projections.Services
+namespace Lombiq.Projections.Providers
 {
     public interface IChainableMemberBindingProvider : IDependency
     {

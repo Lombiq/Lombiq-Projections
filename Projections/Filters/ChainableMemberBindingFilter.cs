@@ -1,7 +1,7 @@
 ﻿using Lombiq.Projections.Extensions;
 using Lombiq.Projections.Helpers;
 using Lombiq.Projections.Projections.Forms;
-using Lombiq.Projections.Services;
+using Lombiq.Projections.Providers;
 using Orchard.ContentManagement;
 using Orchard.Localization;
 using Orchard.Projections.Descriptors.Filter;
