@@ -122,7 +122,6 @@
     <Compile Include="Projections\Filters\TaxonomyFieldTokenizedTermsFilter.cs" />
     <Compile Include="Projections\Filters\TokenizedBooleanFilter.cs" />
     <Compile Include="Projections\Filters\TokenizedContentItemIdsFilter.cs" />
-    <Compile Include="Projections\Filters\TokenizedTitleFilter.cs" />
     <Compile Include="Projections\Filters\TokenizedContentTypeFilter.cs" />
     <Compile Include="Projections\Forms\TokenizedValueListFilterForm.cs" />
     <Compile Include="Projections\Forms\TokenizedContentTypeFilterForm.cs" />
