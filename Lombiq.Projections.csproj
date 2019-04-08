@@ -124,7 +124,6 @@
     <Compile Include="Projections\Filters\TokenizedContentItemIdsFilter.cs" />
     <Compile Include="Projections\Filters\TokenizedContentTypeFilter.cs" />
     <Compile Include="Projections\Forms\TokenizedValueListFilterForm.cs" />
-    <Compile Include="Projections\Forms\TokenizedContentTypeFilterForm.cs" />
     <Compile Include="Projections\Filters\TokenizedTaxonomyTermsFilter.cs" />
     <Compile Include="Projections\Forms\TaxonomyFieldTokenizedTermsFilterForm.cs" />
     <Compile Include="Projections\Forms\TokenizedTaxonomyTermsFilterForm.cs" />
