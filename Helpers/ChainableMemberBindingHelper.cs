@@ -58,6 +58,7 @@ namespace Lombiq.Projections.Helpers
             Type bindingRecordType,
             IEnumerable<string> recordListReferencePropertyNames,
             string filterPropertyName,
+            string join = "",
             string value = "")
         {
             // The starting point of the alias needs to be a ContentPart(Version)Record.
@@ -67,7 +68,9 @@ namespace Lombiq.Projections.Helpers
             if (string.IsNullOrEmpty(filterPropertyName)) return;
 
             // Start with a join on the initial ContentPart(Version)Record.
-            alias = alias.ContentPartRecord(bindingRecordType);
+            alias = string.IsNullOrEmpty(join) ?
+                alias.ContentPartRecord(bindingRecordType) :
+                alias.ContentPartRecord(bindingRecordType, join);
 
             if (recordListReferencePropertyNames.Any())
             {
@@ -77,7 +80,9 @@ namespace Lombiq.Projections.Helpers
                     alias = alias.Property(name, name.HtmlClassify());
 
                 // Then create a unique alias for the last join using the remaining property path and value.
-                alias.Property(recordListReferencePropertyNames.Last(), $"{filterPropertyName}.{value}".HtmlClassify()); 
+                alias.Property(
+                    recordListReferencePropertyNames.Last(),
+                    $"{string.Join(".", recordListReferencePropertyNames)}.{filterPropertyName}.{value}".HtmlClassify());
             }
         }
     }
