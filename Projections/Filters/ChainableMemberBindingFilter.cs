@@ -68,8 +68,9 @@ namespace Lombiq.Projections.Projections.Filters
 
             var values = new TokenizedValueListFilterFormElements(context.State);
 
-            return T("The value \"{0}\" matches {1}.{2} with filter relationship \"{3}\".",
+            return T("The value \"{0}\" {1} {2}.{3} with filter relationship \"{4}\".",
                 string.IsNullOrEmpty(values.ValueString) ? T("{empty}").Text : values.ValueString,
+                values.Matches ? T("match(es)") : T("do(es)n't match"),
                 binding.ContentPartRecordType.Name,
                 binding.PropertyPath,
                 string.IsNullOrEmpty(values.FilterRelationshipString) ? values.FilterRelationship.ToString() : values.FilterRelationshipString);
