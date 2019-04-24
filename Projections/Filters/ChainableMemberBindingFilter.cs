@@ -68,11 +68,8 @@ namespace Lombiq.Projections.Projections.Filters
 
             var values = new TokenizedValueListFilterFormElements(context.State);
 
-            if (string.IsNullOrEmpty(values.ValueString))
-                return T("Inactive filter: The tokenized value to match is not defined!");
-
             return T("The value \"{0}\" matches {1}.{2} with filter relationship \"{3}\".",
-                values.ValueString,
+                string.IsNullOrEmpty(values.ValueString) ? T("{empty}").Text : values.ValueString,
                 binding.ContentPartRecordType.Name,
                 binding.PropertyPath,
                 string.IsNullOrEmpty(values.FilterRelationshipString) ? values.FilterRelationship.ToString() : values.FilterRelationshipString);
@@ -92,9 +89,6 @@ namespace Lombiq.Projections.Projections.Filters
 
             var values = formValues.GetValuesFromJsonString(_jsonConverter);
 
-            // If there are no values to filter with, then do nothing.
-            if (!values.Any()) return;
-
             #endregion
 
             var recordListReferencePropertyNames = ChainableMemberBindingHelper
@@ -106,35 +100,29 @@ namespace Lombiq.Projections.Projections.Filters
                 .Split(new char[] { '.' }, StringSplitOptions.RemoveEmptyEntries)
                 .Skip(recordListReferencePropertyNames.Count()));
 
+            void getAlias(IAliasFactory alias, string join = "", string value = "") =>
+                ChainableMemberBindingHelper.GetChainableMemberBindingAlias(
+                    alias, binding.ContentPartRecordType, recordListReferencePropertyNames, filterPropertyName, join, value);
+
             if (values.Any())
             {
-                Action<IHqlExpressionFactory> expression;
-
                 switch (formValues.FilterRelationship)
                 {
                     // Filtering on multiple values with an "Or" relationship can use the same alias.
                     case ValueFilterRelationship.Or:
-                        expression = e => e.AggregateOr(
-                            (ex, value, property) => formValues.GetStringOperatorFilterExpression(ex, value.ToString(), property), values, filterPropertyName);
-
-                        context.Query.Where(alias =>
-                            ChainableMemberBindingHelper.GetChainableMemberBindingAlias(
-                                alias, binding.ContentPartRecordType, recordListReferencePropertyNames, filterPropertyName),
-                            expression);
+                        context.Query.Where(
+                            a => getAlias(a),
+                            e => e.AggregateOr((ex, value, property) =>
+                                formValues.GetStringOperatorFilterExpression(ex, property, value.ToString()), filterPropertyName, values));
 
                         break;
                     /* When filtering on multiple values with an "And" relationship, each value requires its own
                      * unique alias on the last join, otherwise the query won't give any results. */
                     case ValueFilterRelationship.And:
                         foreach (var value in values)
-                        {
-                            expression = e => formValues.GetStringOperatorFilterExpression(e, value, filterPropertyName);
-
-                            context.Query.Where(alias =>
-                                ChainableMemberBindingHelper.GetChainableMemberBindingAlias(
-                                    alias, binding.ContentPartRecordType, recordListReferencePropertyNames, filterPropertyName, value),
-                                expression);
-                        }
+                            context.Query.Where(
+                                a => getAlias(a, value: value),
+                                e => formValues.GetStringOperatorFilterExpression(e, filterPropertyName, value));
 
                         break;
                     default:
