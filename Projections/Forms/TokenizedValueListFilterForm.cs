@@ -46,17 +46,19 @@ namespace Lombiq.Projections.Projections.Forms
                     values.Distinct().ToArray() : elements.Values;
 
         public static void GetStringOperatorFilterExpression(
-            this TokenizedValueListFilterFormElements elements, IHqlExpressionFactory expression, string value, string property)
+            this TokenizedValueListFilterFormElements elements, IHqlExpressionFactory expression, string property, string value = "")
         {
             switch (elements.StringOperator)
             {
                 case StringOperator.ContainedIn:
-                    expression.Like(property, Convert.ToString(value), HqlMatchMode.Anywhere);
+                    if (elements.Matches) expression.Like(property, Convert.ToString(value), HqlMatchMode.Anywhere);
+                    else expression.Not(inner => inner.Like(property, Convert.ToString(value), HqlMatchMode.Anywhere));
 
                     break;
                 case StringOperator.Equals:
                 default:
-                    expression.Eq(property, value);
+                    if (elements.Matches) expression.Eq(property, value);
+                    else expression.Not(inner => inner.Eq(property, value));
 
                     break;
             }
