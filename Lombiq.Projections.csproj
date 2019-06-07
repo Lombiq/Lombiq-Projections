@@ -127,6 +127,7 @@
     <Compile Include="Projections\Filters\TokenizedTaxonomyTermsFilter.cs" />
     <Compile Include="Projections\Forms\TaxonomyFieldTokenizedTermsFilterForm.cs" />
     <Compile Include="Projections\Forms\TokenizedTaxonomyTermsFilterForm.cs" />
+    <Compile Include="Projections\SortCriteria\ChainableMemberBindingSortCriteria.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Providers\CommonPartRecordMemberBindingProvider.cs" />
     <Compile Include="Providers\IChainableMemberBindingProvider.cs" />
