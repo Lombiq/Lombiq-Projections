@@ -42,8 +42,10 @@ namespace Lombiq.Projections.Projections.Forms
             IJsonConverter jsonConverter = null) =>
             string.IsNullOrEmpty(elements.ValueString) ?
                 new string[] { } :
-                jsonConverter != null && jsonConverter.TryDeserialize<string[]>(elements.ValueString, out var values) ?
-                    values.Distinct().ToArray() : elements.Values;
+                // If the value string is not a JSON array, then it's probably a single value or a comma-separated list.
+                elements.ValueString.StartsWith("[") && elements.ValueString.EndsWith("]") &&
+                    jsonConverter != null && jsonConverter.TryDeserialize<string[]>(elements.ValueString, out var values) ?
+                        values.Distinct().ToArray() : elements.Values;
 
         public static void GetStringOperatorFilterExpression(
             this TokenizedValueListFilterFormElements elements, IHqlExpressionFactory expression, string property, string value = "")
