@@ -2,6 +2,8 @@
 
 
 
+## About
+
 An [Orchard CMS](http://orchardproject.net/) module that adds some useful Projection filters:
 
 - `Lombiq Projections` feature:
@@ -12,9 +14,9 @@ An [Orchard CMS](http://orchardproject.net/) module that adds some useful Projec
 - `Lombiq Projections - Taxonomies` feature:
     - `TokenizedTaxonomyTermsFilter`: The `TermsFilter` from `Orchard.Taxonomies` on steroids: Much more flexible due to the additional options, like tokenization, inverting filter results and selectable property of the Terms to match.
 
-The module's source is available in two public source repositories, automatically mirrored in both directions with [Git-hg Mirror](https://githgmirror.com):
 
-- [https://bitbucket.org/Lombiq/lombiq-projections](https://bitbucket.org/Lombiq/lombiq-projections) (Mercurial repository)
-- [https://github.com/Lombiq/Lombiq-Projections](https://github.com/Lombiq/Lombiq-Projections) (Git repository)
+## Contributing and support
 
-This project is developed by [Lombiq Technologies Ltd](http://lombiq.com/). Commercial-grade support is available through Lombiq.
+Bug reports, feature requests, comments, questions, code contributions, and love letters are warmly welcome, please do so via GitHub issues and pull requests. Please adhere to our [open-source guidelines](https://lombiq.com/open-source-guidelines) while doing so.
+
+This project is developed by [Lombiq Technologies](https://lombiq.com/). Commercial-grade support is available through Lombiq.
