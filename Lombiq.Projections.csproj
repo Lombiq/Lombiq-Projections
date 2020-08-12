@@ -115,7 +115,6 @@
     <Compile Include="Migrations\TitleSortableTermsMigrations.cs" />
     <Compile Include="Models\TitleSortableTermContentItem.cs" />
     <Compile Include="Models\TitleSortableTermsPart.cs" />
-    <Compile Include="Models\TitleSortableTermsPartRecord.cs" />
     <Compile Include="Projections\Filters\ChainableMemberBindingFilter.cs" />
     <Compile Include="Projections\Filters\ContainsContentFieldsFilter.cs" />
     <Compile Include="Projections\Filters\EmptySafeContentFieldsFilter.cs" />

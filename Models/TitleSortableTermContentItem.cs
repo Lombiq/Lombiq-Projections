@@ -1,4 +1,6 @@
-﻿using Orchard.Data.Conventions;
+﻿using Lombiq.Projections.Constants;
+using Orchard.Data.Conventions;
+using Orchard.Environment.Extensions;
 using Orchard.Taxonomies.Models;
 
 namespace Lombiq.Projections.Models
@@ -10,6 +12,7 @@ namespace Lombiq.Projections.Models
     /// If there are multiple Terms selected, the first one (based on <see cref="TermPart"/>'s own sorting)
     /// will be flagged to be used for the comparison.
     /// </summary>
+    [OrchardFeature(FeatureNames.Taxonomies)]
     public class TitleSortableTermContentItem
     {
         public virtual int Id { get; set; }

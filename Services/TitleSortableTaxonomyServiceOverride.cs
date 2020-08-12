@@ -12,6 +12,7 @@ using System.Linq;
 
 namespace Lombiq.Projections.Services
 {
+    [OrchardFeature(FeatureNames.Taxonomies)]
     public class TitleSortableTaxonomyServiceDecoratorsModule : DecoratorsModuleBase
     {
         protected override IEnumerable<DecorationConfiguration> DescribeDecorators()

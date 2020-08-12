@@ -1,4 +1,8 @@
-﻿using Orchard.ContentManagement;
+﻿using Lombiq.Projections.Constants;
+using Orchard.ContentManagement;
+using Orchard.ContentManagement.Records;
+using Orchard.Data.Conventions;
+using Orchard.Environment.Extensions;
 using System.Collections.Generic;
 
 namespace Lombiq.Projections.Models
@@ -8,6 +12,7 @@ namespace Lombiq.Projections.Models
     /// content items to Terms using <see cref="TitleSortableTermContentItem"/>,
     /// which includes additional information necessary for sorting content items.
     /// </summary>
+    [OrchardFeature(FeatureNames.Taxonomies)]
     public class TitleSortableTermsPart : ContentPart<TitleSortableTermsPartRecord>
     {
         public IList<TitleSortableTermContentItem> Terms
@@ -15,5 +20,18 @@ namespace Lombiq.Projections.Models
             get { return Record.Terms; }
             set { Record.Terms = value; }
         }
+    }
+
+
+    [OrchardFeature(FeatureNames.Taxonomies)]
+    public class TitleSortableTermsPartRecord : ContentPartRecord
+    {
+        public TitleSortableTermsPartRecord()
+        {
+            Terms = new List<TitleSortableTermContentItem>();
+        }
+
+        [CascadeAllDeleteOrphan]
+        public virtual IList<TitleSortableTermContentItem> Terms { get; set; }
     }
 }
