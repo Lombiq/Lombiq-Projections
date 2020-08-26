@@ -122,7 +122,7 @@ namespace Lombiq.Projections.Projections.Forms
                     _Relationship: _shapeFactory.Textbox(
                         Id: "filterRelationshipString", Name: nameof(TokenizedValueListFilterFormElements.FilterRelationshipString),
                         Classes: new[] { "text", "medium", "tokenized" },
-                        Title: T("Filter relatioship"),
+                        Title: T("Filter relationship"),
                         Description: T("Defines the operator between the filters of individual values. Accepted values: {0}. Default value: \"{1}\".",
                             string.Join(", ", Enum.GetNames(typeof(ValueFilterRelationship))),
                             ValueFilterRelationship.Or.ToString()))));
