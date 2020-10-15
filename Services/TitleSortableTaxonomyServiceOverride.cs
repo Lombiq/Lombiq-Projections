@@ -2,6 +2,7 @@
 using Lombiq.Projections.Models;
 using Orchard.ContentManagement;
 using Orchard.Core.Title.Models;
+using Orchard.Data;
 using Orchard.Environment.Extensions;
 using Orchard.Taxonomies.Models;
 using Orchard.Taxonomies.Services;
@@ -30,11 +31,15 @@ namespace Lombiq.Projections.Services
     internal class TitleSortableTaxonomyServiceDecorator : ITaxonomyService
     {
         private readonly ITaxonomyService _decorated;
+        private readonly IRepository<TitleSortableTermContentItem> _titleSortableTermContentItemRepository;
 
 
-        public TitleSortableTaxonomyServiceDecorator(ITaxonomyService decorated)
+        public TitleSortableTaxonomyServiceDecorator(
+            ITaxonomyService decorated,
+            IRepository<TitleSortableTermContentItem> titleSortableTermContentItemRepository)
         {
             _decorated = decorated;
+            _titleSortableTermContentItemRepository = titleSortableTermContentItemRepository;
         }
 
 
@@ -55,7 +60,7 @@ namespace Lombiq.Projections.Services
 
             foreach (var term in termList) titleSortableTermsPart.Terms.RemoveAt(term.Index);
 
-            var firstTerm = true;
+            var firstTermId = terms.FirstOrDefault(term => term.Weight == terms.Max(termWeight => termWeight.Weight))?.Id ?? 0;
 
             TitleSortableTermContentItem createTitleSortableTermContentItem(TermPart term) =>
                 new TitleSortableTermContentItem
@@ -64,7 +69,7 @@ namespace Lombiq.Projections.Services
                     TermPartRecord = term?.Record,
                     Title = term?.As<TitlePart>().Title,
                     Field = field,
-                    IsFirst = firstTerm
+                    IsFirst = (term?.Id ?? 0) == firstTermId
                 };
 
             if (terms.Any())
@@ -74,11 +79,22 @@ namespace Lombiq.Projections.Services
                     termList.RemoveAll(t => t.Term.Id == term.Id);
 
                     titleSortableTermsPart.Terms.Add(createTitleSortableTermContentItem(term));
-
-                    if (firstTerm) firstTerm = false;
                 }
             }
             else titleSortableTermsPart.Terms.Add(createTitleSortableTermContentItem(null));
+        }
+
+        public void DeleteTerm(TermPart termPart)
+        {
+            _decorated.DeleteTerm(termPart);
+
+            // Delete TitleSortableTermContentItems.
+            var termContentItems = _titleSortableTermContentItemRepository
+                .Fetch(t => t.TermPartRecord == termPart.Record)
+                .ToList();
+
+            foreach (var termContentItem in termContentItems)
+                _titleSortableTermContentItemRepository.Delete(termContentItem);
         }
 
         #region ITaxonomyService proxies without change.
@@ -91,9 +107,6 @@ namespace Lombiq.Projections.Services
 
         public void DeleteTaxonomy(TaxonomyPart taxonomy) =>
             _decorated.DeleteTaxonomy(taxonomy);
-
-        public void DeleteTerm(TermPart termPart) =>
-            _decorated.DeleteTerm(termPart);
 
         public string GenerateTermTypeName(string taxonomyName) =>
             _decorated.GenerateTermTypeName(taxonomyName);
