@@ -118,13 +118,13 @@
     <Compile Include="Projections\Filters\ChainableMemberBindingFilter.cs" />
     <Compile Include="Projections\Filters\ContainsContentFieldsFilter.cs" />
     <Compile Include="Projections\Filters\EmptySafeContentFieldsFilter.cs" />
-    <Compile Include="Projections\Filters\TaxonomyFieldTokenizedTermsFilter.cs" />
+    <Compile Include="Projections\Filters\TokenizedTaxonomyFieldTermsFilter.cs" />
     <Compile Include="Projections\Filters\TokenizedBooleanFilter.cs" />
     <Compile Include="Projections\Filters\TokenizedContentItemIdsFilter.cs" />
     <Compile Include="Projections\Filters\TokenizedContentTypeFilter.cs" />
     <Compile Include="Projections\Forms\TokenizedValueListFilterForm.cs" />
     <Compile Include="Projections\Filters\TokenizedTaxonomyTermsFilter.cs" />
-    <Compile Include="Projections\Forms\TaxonomyFieldTokenizedTermsFilterForm.cs" />
+    <Compile Include="Projections\Forms\TokenizedTaxonomyFieldTermsFilterForm.cs" />
     <Compile Include="Projections\Forms\TokenizedTaxonomyTermsFilterForm.cs" />
     <Compile Include="Projections\SortCriteria\ChainableMemberBindingSortCriteria.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -23,11 +23,11 @@ using System.Linq;
 namespace Lombiq.Projections.Projections.Filters
 {
     /// <summary>
-    /// Allows filtering content with Terms selected for a specific <see cref="TaxonomyField"/>
-    /// instead of a Taxonomy (which can be selected for multiple fields at the same time).
+    /// Allows filtering content with Terms selected for specific <see cref="TaxonomyField"/>(s)
+    /// instead of one or more (or any) Taxonomy (which can be selected for multiple fields at the same time).
     /// </summary>
     [OrchardFeature(FeatureNames.Taxonomies)]
-    public class TaxonomyFieldTokenizedTermsFilter : IFilterProvider
+    public class TokenizedTaxonomyFieldTermsFilter : IFilterProvider
     {
         private readonly IContentDefinitionManager _contentDefinitionManager;
         private readonly IEnumerable<IContentFieldDriver> _contentFieldDrivers;
@@ -35,7 +35,7 @@ namespace Lombiq.Projections.Projections.Filters
         private readonly ITaxonomyService _taxonomyService;
 
 
-        public TaxonomyFieldTokenizedTermsFilter(
+        public TokenizedTaxonomyFieldTermsFilter(
             IContentDefinitionManager contentDefinitionManager,
             IEnumerable<IContentFieldDriver> contentFieldDrivers,
             IContentManager contentManager,
@@ -58,7 +58,7 @@ namespace Lombiq.Projections.Projections.Filters
             foreach (var part in _contentDefinitionManager.ListPartDefinitions().Where(p => p.Fields.Any(f => f.FieldDefinition.Name == nameof(TaxonomyField))))
             {
                 var descriptor = describe.For(
-                    part.Name + nameof(TaxonomyFieldTokenizedTermsFilter),
+                    part.Name + nameof(TokenizedTaxonomyFieldTermsFilter),
                     T("{0} Taxonomy Fields", part.Name.CamelFriendly()),
                     T("Taxonomy Fields for {0}).", part.Name.CamelFriendly()));
 
@@ -71,7 +71,7 @@ namespace Lombiq.Projections.Projections.Filters
                             description: description,
                             filter: context => ApplyFilter(context, storageName, storageType, part, field),
                             display: context => DisplayFilter(context, storageName, storageType, part, field),
-                            form: TaxonomyFieldTokenizedTermsFilterForm.FormName));
+                            form: TokenizedTaxonomyFieldTermsFilterForm.FormName));
 
                     membersContext
                         .Member(null, typeof(TitleSortableTermContentItem), T("Terms"), T("The Terms selected for this {0} defined by a static value or a Token.", nameof(TaxonomyField)))
@@ -89,7 +89,7 @@ namespace Lombiq.Projections.Projections.Filters
             if (string.IsNullOrEmpty(taxonomyName) || _taxonomyService.GetTaxonomyByName(taxonomyName) == null)
                 return T("Inactive filter: This field doesn't have a Taxonomy selected!");
 
-            var values = new TaxonomyFieldTokenizedTermsFilterFormElements(context.State);
+            var values = new TokenizedTaxonomyFieldTermsFilterFormElements(context.State);
 
             if (values.TermProperty == null) return T("Inactive filter: You need to define which Term property to match!");
 
@@ -111,7 +111,7 @@ namespace Lombiq.Projections.Projections.Filters
         {
             if (field.FieldDefinition.Name != nameof(TaxonomyField)) return;
 
-            var values = new TaxonomyFieldTokenizedTermsFilterFormElements(context.State);
+            var values = new TokenizedTaxonomyFieldTermsFilterFormElements(context.State);
 
             // "Terms" being empty should cause the Query not to filter anything. At this point it's not possible to determine whether
             // the user didn't provide a value or "Terms" was evaluated to empty string (e.g. by tokenization).

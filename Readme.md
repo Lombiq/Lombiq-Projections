@@ -13,6 +13,7 @@ An [Orchard CMS](http://orchardproject.net/) module that adds some useful Projec
     - `TokenizedBooleanFieldFilter`: The same as `ContentFieldFilter` for `BooleanField` from the `Orchard.Projections` module, except that the filtering value is tokenized.
 - `Lombiq Projections - Taxonomies` feature:
     - `TokenizedTaxonomyTermsFilter`: The `TermsFilter` from `Orchard.Taxonomies` on steroids: Much more flexible due to the additional options, like tokenization, inverting filter results and selectable property of the Terms to match.
+    - `TokenizedTaxonomyFieldTermsFilter`: Similar to `TokenizedTaxonomyTermsFilter`, but instead of matching Terms that belong to the selected Taxonomies, it filters by Terms selected for a specific TaxonomyField.
 
 
 ## Contributing and support

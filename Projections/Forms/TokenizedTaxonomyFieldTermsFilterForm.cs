@@ -7,7 +7,7 @@ using Orchard.Taxonomies.Models;
 
 namespace Lombiq.Projections.Projections.Forms
 {
-    internal class TaxonomyFieldTokenizedTermsFilterFormElements
+    internal class TokenizedTaxonomyFieldTermsFilterFormElements
     {
         public int Operator { get; set; }
         public string TermProperty { get; set; }
@@ -15,7 +15,7 @@ namespace Lombiq.Projections.Projections.Forms
         public bool Contains { get; set; }
 
 
-        public TaxonomyFieldTokenizedTermsFilterFormElements(dynamic formState)
+        public TokenizedTaxonomyFieldTermsFilterFormElements(dynamic formState)
         {
             Operator = string.IsNullOrEmpty(formState[nameof(Operator)]?.Value) ? 0 : int.Parse(formState[nameof(Operator)].Value);
             TermProperty = formState[nameof(TermProperty)];
@@ -25,16 +25,16 @@ namespace Lombiq.Projections.Projections.Forms
     }
 
     [OrchardFeature(FeatureNames.Taxonomies)]
-    public class TaxonomyFieldTokenizedTermsFilterForm : IFormProvider
+    public class TokenizedTaxonomyFieldTermsFilterForm : IFormProvider
     {
         private readonly dynamic _shapeFactory;
 
         public Localizer T { get; set; }
 
-        public static string FormName = nameof(TaxonomyFieldTokenizedTermsFilterForm);
+        public static string FormName = nameof(TokenizedTaxonomyFieldTermsFilterForm);
 
 
-        public TaxonomyFieldTokenizedTermsFilterForm(IShapeFactory shapeFactory)
+        public TokenizedTaxonomyFieldTermsFilterForm(IShapeFactory shapeFactory)
         {
             _shapeFactory = shapeFactory;
 
