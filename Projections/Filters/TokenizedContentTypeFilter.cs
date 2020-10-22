@@ -21,7 +21,7 @@ namespace Lombiq.Projections.Projections.Filters
         {
             describe.For("Content", T("Content"), T("Content"))
                 .Element("TokenizedContentTypes", T("Tokenized Content Types"), T("Tokenized Content Types"),
-                    ApplyFilter, DisplayFilter, TokenizedValueListFilterForm.FormName);
+                    ApplyFilter, DisplayFilter, nameof(TokenizedStringValueListFilterForm));
 
         }
 

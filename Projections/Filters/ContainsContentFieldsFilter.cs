@@ -62,7 +62,7 @@ namespace Lombiq.Projections.Projections.Filters
                             description: new LocalizedString(description != null ? description + " (equals or contains)" : "Returns matching items based on a single value (equals) or a list of comma-separated values (contains), but doesn't filter out anything if the filter value is null or empty."),
                             display: context => DisplayFilter(context, localPart.Name + "." + localField.DisplayName),
                             filter: context => ApplyFilter(context, storageType, propertyName),
-                            form: TokenizedValueListFilterForm.FormName);
+                            form: nameof(TokenizedStringValueListFilterForm));
                     });
 
                     foreach (var driver in drivers) driver.Describe(membersContext);

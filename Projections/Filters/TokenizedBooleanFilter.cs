@@ -52,7 +52,7 @@ namespace Lombiq.Projections.Projections.Filters
                         T("The tokenized boolean value of the field."),
                         context => ApplyFilter(context, part, field),
                         context => DisplayFilter(context, part, field),
-                        TokenizedValueListFilterForm.FormName
+                        nameof(TokenizedStringValueListFilterForm)
                     );
             }
         }

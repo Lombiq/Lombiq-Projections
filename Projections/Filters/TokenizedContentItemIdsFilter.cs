@@ -22,7 +22,7 @@ namespace Lombiq.Projections.Projections.Filters
         {
             describe.For("Content", T("Content Item"), T("Content Item"))
                 .Element(nameof(TokenizedContentItemIdsFilter), T("Tokenized Content Item Id"), T("Content items with matching content item Id."),
-                    ApplyFilter, DisplayFilter, TokenizedValueListFilterForm.FormName);
+                    ApplyFilter, DisplayFilter, nameof(TokenizedStringValueListFilterForm));
         }
 
 

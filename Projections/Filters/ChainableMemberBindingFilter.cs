@@ -53,7 +53,7 @@ namespace Lombiq.Projections.Projections.Filters
                     descriptor.Element(binding.PropertyPath, binding.DisplayName, binding.Description,
                         context => ApplyFilter(context, binding),
                         context => DisplayFilter(context, binding),
-                        TokenizedValueListFilterForm.FormName
+                        nameof(TokenizedStringValueListFilterForm)
                     );
             }
         }

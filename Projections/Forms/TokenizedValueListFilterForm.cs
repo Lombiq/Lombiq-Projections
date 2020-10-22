@@ -67,28 +67,14 @@ namespace Lombiq.Projections.Projections.Forms
         }
     }
 
-    public enum ValueFilterRelationship
-    {
-        Or,
-        And
-    }
-
-    public enum StringOperator
-    {
-        Equals,
-        ContainedIn
-    }
-
-    public class TokenizedValueListFilterForm : IFormProvider
+    public abstract class TokenizedValueListFilterFormBase : IFormProvider
     {
         private readonly dynamic _shapeFactory;
 
         public Localizer T { get; set; }
 
-        public static string FormName = nameof(TokenizedValueListFilterForm);
 
-
-        public TokenizedValueListFilterForm(IShapeFactory shapeFactory)
+        public TokenizedValueListFilterFormBase(IShapeFactory shapeFactory)
         {
             _shapeFactory = shapeFactory;
 
@@ -96,35 +82,43 @@ namespace Lombiq.Projections.Projections.Forms
         }
 
 
-        public void Describe(DescribeContext context) =>
-            context.Form(FormName, shape =>
+        // This won't do anything, just here for demonstation.
+        public virtual void Describe(DescribeContext context) =>
+            context.Form(nameof(TokenizedValueListFilterFormBase), shape =>
                 _shapeFactory.Form(
-                    Id: FormName,
-                    _MatchOrNoMatch: _shapeFactory.FieldSet(
-                        _Match: _shapeFactory.Radio(
-                            Id: "match", Name: nameof(TokenizedValueListFilterFormElements.Matches),
-                            Title: T("Value(s) match(es)"), Value: "true", Checked: true),
-                        _NoMatch: _shapeFactory.Radio(
-                            Id: "noMatch", Name: nameof(TokenizedValueListFilterFormElements.Matches),
-                            Title: T("Value(s) do(es)n't match"), Value: "false")),
-                    _StringOperator: _shapeFactory.FieldSet(
-                        _Equals: _shapeFactory.Radio(
-                            Id: "equals", Name: nameof(TokenizedValueListFilterFormElements.StringOperatorString),
-                            Title: T("Value(s) equal(s)"), Value: StringOperator.Equals, Checked: true),
-                        _ContainedIn: _shapeFactory.Radio(
-                            Id: "containedIn", Name: nameof(TokenizedValueListFilterFormElements.StringOperatorString),
-                            Title: T("Value(s) is/are contained in"), Value: StringOperator.ContainedIn)),
-                    _Value: _shapeFactory.Textbox(
-                        Id: "valueString", Name: nameof(TokenizedValueListFilterFormElements.ValueString),
-                        Classes: new[] { "text", "medium", "tokenized" },
-                        Title: T("Value(s)"),
-                        Description: T("The optionally tokenized comma-separated list of values.")),
-                    _Relationship: _shapeFactory.Textbox(
-                        Id: "filterRelationshipString", Name: nameof(TokenizedValueListFilterFormElements.FilterRelationshipString),
-                        Classes: new[] { "text", "medium", "tokenized" },
-                        Title: T("Filter relationship"),
-                        Description: T("Defines the operator between the filters of individual values. Accepted values: {0}. Default value: \"{1}\".",
-                            string.Join(", ", Enum.GetNames(typeof(ValueFilterRelationship))),
-                            ValueFilterRelationship.Or.ToString()))));
+                    Id: nameof(TokenizedValueListFilterFormBase),
+                    _MatchOrNoMatch: GetMatchRadioFieldSet(),
+                    _Value: GetValueTextbox(),
+                    _Relationship: GetFilterRelationshipTextbox()));
+
+
+        public virtual dynamic GetMatchRadioFieldSet() => _shapeFactory.FieldSet(
+            _Match: _shapeFactory.Radio(
+                Id: "match", Name: nameof(TokenizedValueListFilterFormElements.Matches),
+                Title: T("Value(s) match(es)"), Value: "true", Checked: true),
+            _NoMatch: _shapeFactory.Radio(
+                Id: "noMatch", Name: nameof(TokenizedValueListFilterFormElements.Matches),
+                Title: T("Value(s) do(es)n't match"), Value: "false"));
+
+        public virtual dynamic GetValueTextbox() => _shapeFactory.Textbox(
+            Id: "valueString", Name: nameof(TokenizedValueListFilterFormElements.ValueString),
+            Classes: new[] { "text", "medium", "tokenized" },
+            Title: T("Value(s)"),
+            Description: T("The optionally tokenized comma-separated list of values."));
+
+        public virtual dynamic GetFilterRelationshipTextbox() => _shapeFactory.Textbox(
+            Id: "filterRelationshipString", Name: nameof(TokenizedValueListFilterFormElements.FilterRelationshipString),
+            Classes: new[] { "text", "medium", "tokenized" },
+            Title: T("Filter relationship"),
+            Description: T("Defines the operator between the filters of individual values. Accepted values: {0}. Default value: \"{1}\".",
+                string.Join(", ", Enum.GetNames(typeof(ValueFilterRelationship))),
+                ValueFilterRelationship.Or.ToString()));
+    }
+
+
+    public enum ValueFilterRelationship
+    {
+        Or,
+        And
     }
 }
