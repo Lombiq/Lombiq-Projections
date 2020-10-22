@@ -65,8 +65,7 @@ namespace Lombiq.Projections.Projections.Forms
                     break;
                 case StringOperator.Equals:
                 default:
-                    if (Matches) expression.Eq(property, value);
-                    else expression.Not(inner => inner.Eq(property, value));
+                    base.GetFilterExpression(expression, property, value);
 
                     break;
             }
