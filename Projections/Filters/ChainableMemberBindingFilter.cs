@@ -135,8 +135,10 @@ namespace Lombiq.Projections.Projections.Filters
 
         private TokenizedValueListFilterFormElementsBase GetFormValues(FilterContext context, ChainableMemberBinding binding)
         {
-            switch (binding.PropertyType)
+            switch (binding.PropertyType.Name)
             {
+                case "Boolean":
+                    return new TokenizedBooleanValueListFilterFormElements(context.State);
                 default:
                     return new TokenizedStringValueListFilterFormElements(context.State);
             }
