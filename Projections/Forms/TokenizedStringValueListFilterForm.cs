@@ -1,5 +1,7 @@
-﻿using Orchard.DisplayManagement;
+﻿using Orchard.ContentManagement;
+using Orchard.DisplayManagement;
 using Orchard.Forms.Services;
+using System;
 
 namespace Lombiq.Projections.Projections.Forms
 {
@@ -21,10 +23,10 @@ namespace Lombiq.Projections.Projections.Forms
                     _MatchOrNoMatch: GetMatchRadioFieldSet(),
                     _StringOperator: _shapeFactory.FieldSet(
                         _Equals: _shapeFactory.Radio(
-                            Id: "equals", Name: nameof(TokenizedValueListFilterFormElements.StringOperatorString),
+                            Id: "equals", Name: nameof(TokenizedStringValueListFilterFormElements.StringOperatorString),
                             Title: T("Value(s) equal(s)"), Value: StringOperator.Equals, Checked: true),
                         _ContainedIn: _shapeFactory.Radio(
-                            Id: "containedIn", Name: nameof(TokenizedValueListFilterFormElements.StringOperatorString),
+                            Id: "containedIn", Name: nameof(TokenizedStringValueListFilterFormElements.StringOperatorString),
                             Title: T("Value(s) is/are contained in"), Value: StringOperator.ContainedIn)),
                     _Value: GetValueTextbox(),
                     _Relationship: GetFilterRelationshipTextbox()));
@@ -35,5 +37,39 @@ namespace Lombiq.Projections.Projections.Forms
     {
         Equals,
         ContainedIn
+    }
+
+
+    public class TokenizedStringValueListFilterFormElements : TokenizedValueListFilterFormElementsBase
+    {
+        public string StringOperatorString { get; }
+        public StringOperator StringOperator { get; }
+
+
+        public TokenizedStringValueListFilterFormElements(object formState) : base(formState)
+        {
+            StringOperatorString = ((dynamic)formState)[nameof(StringOperatorString)];
+            StringOperator = Enum.TryParse(StringOperatorString, out StringOperator stringOperator) ?
+                stringOperator : StringOperator.Equals;
+        }
+
+
+        public override void GetFilterExpression(IHqlExpressionFactory expression, string property, string value = "")
+        {
+            switch (StringOperator)
+            {
+                case StringOperator.ContainedIn:
+                    if (Matches) expression.Like(property, Convert.ToString(value), HqlMatchMode.Anywhere);
+                    else expression.Not(inner => inner.Like(property, Convert.ToString(value), HqlMatchMode.Anywhere));
+
+                    break;
+                case StringOperator.Equals:
+                default:
+                    if (Matches) expression.Eq(property, value);
+                    else expression.Not(inner => inner.Eq(property, value));
+
+                    break;
+            }
+        }
     }
 }

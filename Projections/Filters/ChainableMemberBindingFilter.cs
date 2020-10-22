@@ -66,14 +66,14 @@ namespace Lombiq.Projections.Projections.Filters
             if (string.IsNullOrEmpty(binding.PropertyPath))
                 return T("Inactive filter: The property path is not defined!");
 
-            var values = new TokenizedValueListFilterFormElements(context.State);
+            var formValues = GetFormValues(context, binding);
 
             return T("The value \"{0}\" {1} {2}.{3} with filter relationship \"{4}\".",
-                string.IsNullOrEmpty(values.ValueString) ? T("{empty}").Text : values.ValueString,
-                values.Matches ? T("match(es)") : T("do(es)n't match"),
+                string.IsNullOrEmpty(formValues.ValueString) ? T("{empty}").Text : formValues.ValueString,
+                formValues.Matches ? T("match(es)") : T("do(es)n't match"),
                 binding.ContentPartRecordType.Name,
                 binding.PropertyPath,
-                string.IsNullOrEmpty(values.FilterRelationshipString) ? values.FilterRelationship.ToString() : values.FilterRelationshipString);
+                string.IsNullOrEmpty(formValues.FilterRelationshipString) ? formValues.FilterRelationship.ToString() : formValues.FilterRelationshipString);
         }
 
         public void ApplyFilter(FilterContext context, ChainableMemberBinding binding)
@@ -86,7 +86,7 @@ namespace Lombiq.Projections.Projections.Filters
             // The property path can't be empty.
             if (string.IsNullOrEmpty(binding.PropertyPath)) return;
 
-            var formValues = new TokenizedValueListFilterFormElements(context.State);
+            var formValues = GetFormValues(context, binding);
 
             var values = formValues.GetValuesFromJsonString(_jsonConverter);
 
@@ -114,7 +114,7 @@ namespace Lombiq.Projections.Projections.Filters
                         context.Query.Where(
                             a => getAlias(a),
                             e => e.AggregateOr((ex, value, property) =>
-                                formValues.GetStringOperatorFilterExpression(ex, property, value.ToString()), filterPropertyName, values));
+                                formValues.GetFilterExpression(ex, property, value.ToString()), filterPropertyName, values));
 
                         break;
                     /* When filtering on multiple values with an "And" relationship, each value requires its own
@@ -123,12 +123,22 @@ namespace Lombiq.Projections.Projections.Filters
                         foreach (var value in values)
                             context.Query.Where(
                                 a => getAlias(a, value: value),
-                                e => formValues.GetStringOperatorFilterExpression(e, filterPropertyName, value));
+                                e => formValues.GetFilterExpression(e, filterPropertyName, value));
 
                         break;
                     default:
                         break;
                 }
+            }
+        }
+
+
+        private TokenizedValueListFilterFormElementsBase GetFormValues(FilterContext context, ChainableMemberBinding binding)
+        {
+            switch (binding.PropertyType)
+            {
+                default:
+                    return new TokenizedStringValueListFilterFormElements(context.State);
             }
         }
     }

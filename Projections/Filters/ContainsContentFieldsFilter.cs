@@ -72,7 +72,7 @@ namespace Lombiq.Projections.Projections.Filters
 
         public LocalizedString DisplayFilter(FilterContext context, string propertyName)
         {
-            var formValues = new TokenizedValueListFilterFormElements(context.State);
+            var formValues = new TokenizedStringValueListFilterFormElements(context.State);
 
             return string.IsNullOrEmpty(formValues.ValueString) ?
                 T("Inactive filter: You need to define the value to match with.") :
@@ -84,7 +84,7 @@ namespace Lombiq.Projections.Projections.Filters
 
         public void ApplyFilter(FilterContext context, Type storageType, string propertyName)
         {
-            var formValues = new TokenizedValueListFilterFormElements(context.State);
+            var formValues = new TokenizedStringValueListFilterFormElements(context.State);
 
             if (string.IsNullOrEmpty(formValues.ValueString)) return;
 

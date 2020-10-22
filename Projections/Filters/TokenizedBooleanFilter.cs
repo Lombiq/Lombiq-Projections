@@ -61,7 +61,7 @@ namespace Lombiq.Projections.Projections.Filters
         {
             string valueString = context.State.Value;
 
-            var formValues = new TokenizedValueListFilterFormElements(context.State);
+            var formValues = new TokenizedStringValueListFilterFormElements(context.State);
             var values = formValues.Values;
 
             if (!values.Any()) return;
@@ -97,7 +97,7 @@ namespace Lombiq.Projections.Projections.Filters
 
         public LocalizedString DisplayFilter(FilterContext context, ContentPartDefinition part, ContentPartFieldDefinition field)
         {
-            var formValues = new TokenizedValueListFilterFormElements(context.State);
+            var formValues = new TokenizedStringValueListFilterFormElements(context.State);
 
             return string.IsNullOrEmpty(formValues.ValueString) ?
                 T("Inactive filter: Undefined value for {0}.{1}.", part.Name, field.Name) :
