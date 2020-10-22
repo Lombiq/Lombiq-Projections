@@ -17,14 +17,14 @@ using System.Linq;
 namespace Lombiq.Projections.Projections.Filters
 {
     [OrchardFeature(FeatureNames.Fields)]
-    public class TokenizedBooleanFilter : IFilterProvider
+    public class TokenizedBooleanFieldFilter : IFilterProvider
     {
         private readonly IContentDefinitionManager _contentDefinitionManager;
 
         public Localizer T { get; set; }
 
 
-        public TokenizedBooleanFilter(IContentDefinitionManager contentDefinitionManager)
+        public TokenizedBooleanFieldFilter(IContentDefinitionManager contentDefinitionManager)
         {
             _contentDefinitionManager = contentDefinitionManager;
 
@@ -47,7 +47,7 @@ namespace Lombiq.Projections.Projections.Filters
 
                 foreach (var field in booleanFields)
                     descriptor.Element(
-                        nameof(TokenizedBooleanFilter),
+                        nameof(TokenizedBooleanFieldFilter),
                         T("{0}: Tokenized Value", field.DisplayName),
                         T("The tokenized boolean value of the field."),
                         context => ApplyFilter(context, part, field),
