@@ -105,7 +105,7 @@ namespace Lombiq.Projections.Projections.Filters
                 .Split(new char[] { '.' }, StringSplitOptions.RemoveEmptyEntries)
                 .Skip(recordListReferencePropertyNames.Count()));
 
-            void getAlias(IAliasFactory alias, string join = "", string value = "") =>
+            void getAlias(IAliasFactory alias, string join = null, string value = "") =>
                 ChainableMemberBindingHelper.GetChainableMemberBindingAlias(
                     alias, binding.ContentPartRecordType, recordListReferencePropertyNames, filterPropertyName, join, value);
 
@@ -116,8 +116,8 @@ namespace Lombiq.Projections.Projections.Filters
                     // Filtering on multiple values with an "Or" relationship can use the same alias.
                     case ValueFilterRelationship.Or:
                         context.Query.Where(
-                            a => getAlias(a),
-                            e => e.AggregateOr((ex, value, property) =>
+                            alias => getAlias(alias),
+                            filter => filter.AggregateOr((ex, value, property) =>
                                 formValues.GetFilterExpression(ex, property, value.ToString()), filterPropertyName, values));
 
                         break;
@@ -126,8 +126,8 @@ namespace Lombiq.Projections.Projections.Filters
                     case ValueFilterRelationship.And:
                         foreach (var value in values)
                             context.Query.Where(
-                                a => getAlias(a, value: value),
-                                e => formValues.GetFilterExpression(e, filterPropertyName, value));
+                                alias => getAlias(alias, null, value),
+                                filter => formValues.GetFilterExpression(filter, filterPropertyName, value));
 
                         break;
                     default:
