@@ -162,19 +162,22 @@ namespace Lombiq.Projections.Projections.Filters
                 default: return;
             }
 
-            void getAlias(IAliasFactory alias) => alias
+            void getAlias(IAliasFactory alias, string termAlias) => alias
                 .ContentPartRecord<TermsPartRecord>()
-                .Property(nameof(TermsPartRecord.Terms), $"{part.Name}-{field.Name}-{taxonomy.Name}-terms".ToSafeName());
+                .Property(nameof(TermsPartRecord.Terms), termAlias);
 
             var propertyName = $"{nameof(TermContentItem.TermRecord)}.{nameof(TermPartRecord.Id)}";
+            var termIdAlias = $"{part.Name}-{field.Name}-{taxonomy.Name}-terms".ToSafeName();
 
-            context.Query.Where(getAlias, ex => ex.Eq(nameof(TermContentItem.Field), field.Name));
+            context.Query.Where(
+                alias => getAlias(alias, termIdAlias),
+                ex => ex.Eq(nameof(TermContentItem.Field), field.Name));
 
             switch (formValues.Operator)
             {
                 case 0: // Any Term matches.
                     context.Query.Where(
-                        alias => getAlias(alias),
+                        alias => getAlias(alias, termIdAlias),
                         HqlQueryExtensions.AggregateOrFactory(
                             (property, value) => formValues.GetFilterExpression(property, value as string),
                             propertyName,
@@ -182,15 +185,14 @@ namespace Lombiq.Projections.Projections.Filters
 
                     break;
                 case 1: // All Terms match.
-                    Action<IHqlExpressionFactory> expression = e => { };
-
                     foreach (var term in terms)
-                    {
-                        if (formValues.Contains) expression = ex => ex.Eq(propertyName, term);
-                        else expression = ex => ex.Not(ex2 => ex2.Eq(propertyName, term));
-                    }
-
-                    context.Query.Where(getAlias, expression);
+                        context.Query.Where(
+                            alias => getAlias(alias, termIdAlias + term),
+                            expression =>
+                            {
+                                if (formValues.Contains) expression.Eq(propertyName, term);
+                                else expression.Not(not => not.Eq(propertyName, term));
+                            });
 
                     break;
             }
