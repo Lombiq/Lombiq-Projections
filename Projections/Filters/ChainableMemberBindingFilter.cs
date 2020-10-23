@@ -93,6 +93,8 @@ namespace Lombiq.Projections.Projections.Filters
 
             var values = formValues.GetValuesFromJsonString(_jsonConverter);
 
+            if (!values.Any()) return;
+
             #endregion
 
             var recordListReferencePropertyNames = ChainableMemberBindingHelper
