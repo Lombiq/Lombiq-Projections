@@ -1,8 +1,8 @@
 ﻿using Lombiq.Projections.Projections.Forms;
+using Orchard.ContentManagement;
 using Orchard.Localization;
 using Orchard.Projections.Descriptors.Filter;
 using Orchard.Projections.Services;
-using Piedone.HelpfulLibraries.Utilities;
 using System.Linq;
 
 namespace Lombiq.Projections.Projections.Filters

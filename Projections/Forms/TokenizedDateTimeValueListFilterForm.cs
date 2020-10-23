@@ -35,7 +35,7 @@ namespace Lombiq.Projections.Projections.Forms
         }
 
 
-        public override void GetFilterExpression(IHqlExpressionFactory expression, string property, string value = "") =>
+        public override Action<IHqlExpressionFactory> GetFilterExpression(string property, string value = "") =>
             DateTimeFilterForm.GetFilterPredicate(FormState, property, _clock.UtcNow, false);
     }
 }

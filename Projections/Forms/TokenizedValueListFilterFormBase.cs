@@ -98,10 +98,10 @@ namespace Lombiq.Projections.Projections.Forms
                     jsonConverter != null && jsonConverter.TryDeserialize<string[]>(ValueString, out var values) ?
                         values.Distinct().ToArray() : Values;
 
-        public virtual void GetFilterExpression(IHqlExpressionFactory expression, string property, string value = "")
+        public virtual Action<IHqlExpressionFactory> GetFilterExpression(string property, string value = "")
         {
-            if (Matches) expression.Eq(property, value);
-            else expression.Not(inner => inner.Eq(property, value));
+            if (Matches) return expression => expression.Eq(property, value);
+            else return expression => expression.Not(inner => inner.Eq(property, value));
         }
     }
 }

@@ -54,20 +54,16 @@ namespace Lombiq.Projections.Projections.Forms
         }
 
 
-        public override void GetFilterExpression(IHqlExpressionFactory expression, string property, string value = "")
+        public override Action<IHqlExpressionFactory> GetFilterExpression(string property, string value = "")
         {
             switch (StringOperator)
             {
                 case StringOperator.ContainedIn:
-                    if (Matches) expression.Like(property, Convert.ToString(value), HqlMatchMode.Anywhere);
-                    else expression.Not(inner => inner.Like(property, Convert.ToString(value), HqlMatchMode.Anywhere));
-
-                    break;
+                    if (Matches) return expression => expression.Like(property, Convert.ToString(value), HqlMatchMode.Anywhere);
+                    else return expression => expression.Not(inner => inner.Like(property, Convert.ToString(value), HqlMatchMode.Anywhere));
                 case StringOperator.Equals:
                 default:
-                    base.GetFilterExpression(expression, property, value);
-
-                    break;
+                    return base.GetFilterExpression(property, value);
             }
         }
     }

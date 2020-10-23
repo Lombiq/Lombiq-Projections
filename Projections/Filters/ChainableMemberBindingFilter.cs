@@ -9,7 +9,6 @@ using Orchard.Projections.FilterEditors.Forms;
 using Orchard.Projections.Services;
 using Orchard.Services;
 using Orchard.Utility.Extensions;
-using Piedone.HelpfulLibraries.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -117,8 +116,10 @@ namespace Lombiq.Projections.Projections.Filters
                     case ValueFilterRelationship.Or:
                         context.Query.Where(
                             alias => getAlias(alias),
-                            filter => filter.AggregateOr((ex, value, property) =>
-                                formValues.GetFilterExpression(ex, property, value.ToString()), filterPropertyName, values));
+                            HqlQueryExtensions.AggregateOrFactory(
+                                (property, value) => formValues.GetFilterExpression(property, value as string),
+                                filterPropertyName,
+                                values));
 
                         break;
                     /* When filtering on multiple values with an "And" relationship, each value requires its own
@@ -127,7 +128,7 @@ namespace Lombiq.Projections.Projections.Filters
                         foreach (var value in values)
                             context.Query.Where(
                                 alias => getAlias(alias, null, value),
-                                filter => formValues.GetFilterExpression(filter, filterPropertyName, value));
+                                formValues.GetFilterExpression(filterPropertyName, value));
 
                         break;
                     default:
