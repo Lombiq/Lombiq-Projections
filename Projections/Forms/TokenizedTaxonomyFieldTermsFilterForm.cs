@@ -1,51 +1,30 @@
 ﻿using Lombiq.Projections.Constants;
+using Orchard.ContentManagement;
 using Orchard.DisplayManagement;
 using Orchard.Environment.Extensions;
 using Orchard.Forms.Services;
 using Orchard.Localization;
 using Orchard.Taxonomies.Models;
+using System;
 
 namespace Lombiq.Projections.Projections.Forms
 {
-    internal class TokenizedTaxonomyFieldTermsFilterFormElements
-    {
-        public int Operator { get; set; }
-        public string TermProperty { get; set; }
-        public string Terms { get; set; }
-        public bool Contains { get; set; }
-
-
-        public TokenizedTaxonomyFieldTermsFilterFormElements(dynamic formState)
-        {
-            Operator = string.IsNullOrEmpty(formState[nameof(Operator)]?.Value) ? 0 : int.Parse(formState[nameof(Operator)].Value);
-            TermProperty = formState[nameof(TermProperty)];
-            Terms = formState[nameof(Terms)];
-            Contains = formState[nameof(Contains)] ?? false;
-        }
-    }
-
     [OrchardFeature(FeatureNames.Taxonomies)]
-    public class TokenizedTaxonomyFieldTermsFilterForm : IFormProvider
+    public class TokenizedTaxonomyFieldTermsFilterForm : TokenizedValueListFilterFormBase
     {
         private readonly dynamic _shapeFactory;
 
-        public Localizer T { get; set; }
 
-        public static string FormName = nameof(TokenizedTaxonomyFieldTermsFilterForm);
-
-
-        public TokenizedTaxonomyFieldTermsFilterForm(IShapeFactory shapeFactory)
+        public TokenizedTaxonomyFieldTermsFilterForm(IShapeFactory shapeFactory) : base(shapeFactory)
         {
             _shapeFactory = shapeFactory;
-
-            T = NullLocalizer.Instance;
         }
 
 
-        public void Describe(DescribeContext context) =>
-            context.Form(FormName, shape =>
+        public override void Describe(DescribeContext context) =>
+            context.Form(nameof(TokenizedTaxonomyFieldTermsFilterForm), shape =>
                 _shapeFactory.Form(
-                    Id: FormName,
+                    Id: nameof(TokenizedTaxonomyFieldTermsFilterForm),
                     _ContainsOrNot: _shapeFactory.FieldSet(
                         _Contains: _shapeFactory.Radio(
                             Id: "contains", Name: nameof(TokenizedTaxonomyTermsFilterFormElements.Contains),
@@ -53,13 +32,7 @@ namespace Lombiq.Projections.Projections.Forms
                         _NotContains: _shapeFactory.Radio(
                             Id: "notContains", Name: nameof(TokenizedTaxonomyTermsFilterFormElements.Contains),
                             Title: T("Content that doesn't have"), Value: "false")),
-                    _Operator: _shapeFactory.FieldSet(
-                        _AnyTerm: _shapeFactory.Radio(
-                            Id: "operatorAnyTerm", Name: nameof(TokenizedTaxonomyTermsFilterFormElements.Operator),
-                            Title: T("Any Term"), Value: "0", Checked: true),
-                        _AllTerms: _shapeFactory.Radio(
-                            Id: "operatorAllTerms", Name: nameof(TokenizedTaxonomyTermsFilterFormElements.Operator),
-                            Title: T("All Terms"), Value: "1")),
+                    _Relationship: GetFilterRelationshipTextbox(),
                     _Property: _shapeFactory.FieldSet(
                         _PropertyName: _shapeFactory.Radio(
                             Id: "termPropertyName", Name: nameof(TokenizedTaxonomyTermsFilterFormElements.TermProperty),
@@ -72,5 +45,31 @@ namespace Lombiq.Projections.Projections.Forms
                         Classes: new[] { "text", "medium", "tokenized" },
                         Title: T("Terms"),
                         Description: T("The comma-separated list of Taxonomy Terms (based on their property selected above) to filter content items with."))));
+    }
+
+
+    public class TokenizedTaxonomyFieldTermsFilterFormElements : TokenizedValueListFilterFormElementsBase
+    {
+        public int Operator { get; set; }
+        public string TermProperty { get; set; }
+        public string Terms { get; set; }
+        public bool Contains { get; set; }
+
+
+        public TokenizedTaxonomyFieldTermsFilterFormElements(object formState) : base(formState)
+        {
+            TermProperty = FormState[nameof(TermProperty)];
+            Terms = FormState[nameof(Terms)];
+            Matches = Contains = FormState[nameof(Contains)] ?? false;
+
+            // Backwards-compatibility with filter forms saved before the filter relationship became a tokenized textbox.
+            if (string.IsNullOrEmpty(FilterRelationshipString))
+                Operator = string.IsNullOrEmpty(FormState[nameof(Operator)]?.Value) ? 0 : int.Parse(FormState[nameof(Operator)].Value);
+            else Operator = FilterRelationship == ValueFilterRelationship.Or ? 0 : 1;
+        }
+
+
+        public override Action<IHqlExpressionFactory> GetFilterExpression(string property, string value = "") =>
+            base.GetFilterExpression(property, value);
     }
 }

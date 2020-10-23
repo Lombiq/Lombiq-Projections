@@ -71,7 +71,7 @@ namespace Lombiq.Projections.Projections.Filters
                             description: description,
                             filter: context => ApplyFilter(context, storageName, storageType, part, field),
                             display: context => DisplayFilter(context, storageName, storageType, part, field),
-                            form: TokenizedTaxonomyFieldTermsFilterForm.FormName));
+                            form: nameof(TokenizedTaxonomyFieldTermsFilterForm)));
 
                     membersContext
                         .Member(null, typeof(TitleSortableTermContentItem), T("Terms"), T("The Terms selected for this {0} defined by a static value or a Token.", nameof(TaxonomyField)))
@@ -111,11 +111,11 @@ namespace Lombiq.Projections.Projections.Filters
         {
             if (field.FieldDefinition.Name != nameof(TaxonomyField)) return;
 
-            var values = new TokenizedTaxonomyFieldTermsFilterFormElements(context.State);
+            var formValues = new TokenizedTaxonomyFieldTermsFilterFormElements(context.State);
 
             // "Terms" being empty should cause the Query not to filter anything. At this point it's not possible to determine whether
             // the user didn't provide a value or "Terms" was evaluated to empty string (e.g. by tokenization).
-            if (string.IsNullOrEmpty(values.Terms) || values.TermProperty == null || values.Operator > 1) return;
+            if (string.IsNullOrEmpty(formValues.Terms) || formValues.TermProperty == null || formValues.Operator > 1) return;
 
             var taxonomyName = GetSelectedTaxonomyNameForField(field);
 
@@ -125,11 +125,14 @@ namespace Lombiq.Projections.Projections.Filters
 
             if (taxonomy == null) return;
 
-            var terms = values.Terms.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Select(term => term.Trim()).ToArray();
+            var terms = formValues.Terms
+                .Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Select(term => term.Trim())
+                .Distinct()
+                .ToArray();
 
-            if (terms.Length == 0) return;
+            if (!terms.Any()) return;
 
-            switch (values.TermProperty)
+            switch (formValues.TermProperty)
             {
                 case nameof(TermPart.Id): break;
                 case nameof(TermPart.Name): // We need to translate Term names into Ids.
@@ -159,35 +162,38 @@ namespace Lombiq.Projections.Projections.Filters
                 default: return;
             }
 
-            void alias(IAliasFactory a) => a
+            void getAlias(IAliasFactory alias) => alias
                 .ContentPartRecord<TermsPartRecord>()
                 .Property(nameof(TermsPartRecord.Terms), $"{part.Name}-{field.Name}-{taxonomy.Name}-terms".ToSafeName());
-            Action<IHqlExpressionFactory> expression = e => { };
 
-            context.Query.Where(alias, ex => ex.Eq(nameof(TermContentItem.Field), field.Name));
+            var propertyName = $"{nameof(TermContentItem.TermRecord)}.{nameof(TermPartRecord.Id)}";
 
-            switch (values.Operator)
+            context.Query.Where(getAlias, ex => ex.Eq(nameof(TermContentItem.Field), field.Name));
+
+            switch (formValues.Operator)
             {
                 case 0: // Any Term matches.
-                    if (values.Contains) expression = ex => ex
-                        .In($"{nameof(TermContentItem.TermRecord)}.{nameof(TermPartRecord.Id)}", terms);
-                    else expression = ex => ex.Not(ex2 => ex2
-                        .In($"{nameof(TermContentItem.TermRecord)}.{nameof(TermPartRecord.Id)}", terms));
+                    context.Query.Where(
+                        alias => getAlias(alias),
+                        HqlQueryExtensions.AggregateOrFactory(
+                            (property, value) => formValues.GetFilterExpression(property, value as string),
+                            propertyName,
+                            terms));
 
                     break;
                 case 1: // All Terms match.
+                    Action<IHqlExpressionFactory> expression = e => { };
+
                     foreach (var term in terms)
                     {
-                        if (values.Contains) expression = ex => ex
-                            .Eq($"{nameof(TermContentItem.TermRecord)}.{nameof(TermPartRecord.Id)}", term);
-                        else expression = ex => ex.Not(ex2 => ex2
-                            .Eq($"{nameof(TermContentItem.TermRecord)}.{nameof(TermPartRecord.Id)}", term));
+                        if (formValues.Contains) expression = ex => ex.Eq(propertyName, term);
+                        else expression = ex => ex.Not(ex2 => ex2.Eq(propertyName, term));
                     }
+
+                    context.Query.Where(getAlias, expression);
 
                     break;
             }
-
-            context.Query.Where(alias, expression);
         }
 
 

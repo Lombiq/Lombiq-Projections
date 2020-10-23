@@ -68,7 +68,7 @@ namespace Lombiq.Projections.Projections.Forms
     {
         public dynamic FormState { get; set; }
 
-        public bool Matches { get; }
+        public bool Matches { get; set; }
         public string FilterRelationshipString { get; set; }
         public ValueFilterRelationship FilterRelationship { get; set; }
         public string ValueString { get; set; }

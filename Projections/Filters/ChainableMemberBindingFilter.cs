@@ -102,13 +102,13 @@ namespace Lombiq.Projections.Projections.Filters
 
             if (recordListReferencePropertyNames == null) return;
 
-            var filterPropertyName = string.Join(".", binding.PropertyPath
+            var propertyName = string.Join(".", binding.PropertyPath
                 .Split(new char[] { '.' }, StringSplitOptions.RemoveEmptyEntries)
                 .Skip(recordListReferencePropertyNames.Count()));
 
             void getAlias(IAliasFactory alias, string join = null, string value = "") =>
                 ChainableMemberBindingHelper.GetChainableMemberBindingAlias(
-                    alias, binding.ContentPartRecordType, recordListReferencePropertyNames, filterPropertyName, join, value);
+                    alias, binding.ContentPartRecordType, recordListReferencePropertyNames, propertyName, join, value);
 
             if (values.Any())
             {
@@ -120,7 +120,7 @@ namespace Lombiq.Projections.Projections.Filters
                             alias => getAlias(alias),
                             HqlQueryExtensions.AggregateOrFactory(
                                 (property, value) => formValues.GetFilterExpression(property, value as string),
-                                filterPropertyName,
+                                propertyName,
                                 values));
 
                         break;
@@ -130,7 +130,7 @@ namespace Lombiq.Projections.Projections.Filters
                         foreach (var value in values)
                             context.Query.Where(
                                 alias => getAlias(alias, null, value),
-                                formValues.GetFilterExpression(filterPropertyName, value));
+                                formValues.GetFilterExpression(propertyName, value));
 
                         break;
                     default:
