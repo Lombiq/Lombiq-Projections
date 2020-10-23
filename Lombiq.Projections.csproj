@@ -123,6 +123,7 @@
     <Compile Include="Projections\Filters\TokenizedContentItemIdsFilter.cs" />
     <Compile Include="Projections\Filters\TokenizedContentTypeFilter.cs" />
     <Compile Include="Projections\Forms\TokenizedBooleanValueListFilterForm.cs" />
+    <Compile Include="Projections\Forms\TokenizedDateTimeValueListFilterForm.cs" />
     <Compile Include="Projections\Forms\TokenizedStringValueListFilterForm.cs" />
     <Compile Include="Projections\Forms\TokenizedValueListFilterFormBase.cs" />
     <Compile Include="Projections\Filters\TokenizedTaxonomyTermsFilter.cs" />

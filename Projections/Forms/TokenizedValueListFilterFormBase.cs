@@ -66,20 +66,24 @@ namespace Lombiq.Projections.Projections.Forms
 
     public abstract class TokenizedValueListFilterFormElementsBase
     {
+        public dynamic FormState { get; set; }
+
         public bool Matches { get; }
-        public string FilterRelationshipString { get; }
-        public ValueFilterRelationship FilterRelationship { get; }
-        public string ValueString { get; }
-        public string[] Values { get; }
+        public string FilterRelationshipString { get; set; }
+        public ValueFilterRelationship FilterRelationship { get; set; }
+        public string ValueString { get; set; }
+        public string[] Values { get; set; }
 
 
         public TokenizedValueListFilterFormElementsBase(dynamic formState)
         {
-            Matches = formState[nameof(Matches)] ?? true;
-            FilterRelationshipString = formState[nameof(FilterRelationshipString)];
+            FormState = formState;
+
+            Matches = FormState[nameof(Matches)] ?? true;
+            FilterRelationshipString = FormState[nameof(FilterRelationshipString)];
             FilterRelationship = Enum.TryParse(FilterRelationshipString, out ValueFilterRelationship filterRelationship) ?
                 filterRelationship : ValueFilterRelationship.Or;
-            ValueString = formState[nameof(ValueString)];
+            ValueString = FormState[nameof(ValueString)];
             Values = string.IsNullOrEmpty(ValueString) ?
                 new string[] { } :
                 ValueString.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Distinct().ToArray();

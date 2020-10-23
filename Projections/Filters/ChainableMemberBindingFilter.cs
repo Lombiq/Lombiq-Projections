@@ -5,6 +5,7 @@ using Lombiq.Projections.Providers;
 using Orchard.ContentManagement;
 using Orchard.Localization;
 using Orchard.Projections.Descriptors.Filter;
+using Orchard.Projections.FilterEditors.Forms;
 using Orchard.Projections.Services;
 using Orchard.Services;
 using Orchard.Utility.Extensions;
@@ -19,16 +20,19 @@ namespace Lombiq.Projections.Projections.Filters
     {
         private readonly IEnumerable<IChainableMemberBindingProvider> _chainableMemberBindingProviders;
         private readonly IJsonConverter _jsonConverter;
+        private readonly IClock _clock;
 
         public Localizer T { get; set; }
 
 
         public ChainableMemberBindingFilter(
             IEnumerable<IChainableMemberBindingProvider> chainableMemberBindingProviders,
-            IJsonConverter jsonConverter)
+            IJsonConverter jsonConverter,
+            IClock clock)
         {
             _chainableMemberBindingProviders = chainableMemberBindingProviders;
             _jsonConverter = jsonConverter;
+            _clock = clock;
 
             T = NullLocalizer.Instance;
         }
@@ -139,6 +143,8 @@ namespace Lombiq.Projections.Projections.Filters
             {
                 case "Boolean":
                     return nameof(TokenizedBooleanValueListFilterForm);
+                case "DateTime":
+                    return DateTimeFilterForm.FormName;
                 default:
                     return nameof(TokenizedStringValueListFilterForm);
             }
@@ -150,6 +156,8 @@ namespace Lombiq.Projections.Projections.Filters
             {
                 case "Boolean":
                     return new TokenizedBooleanValueListFilterFormElements(context.State);
+                case "DateTime":
+                    return new TokenizedDateTimeValueListFilterFormElements(context.State, _clock);
                 default:
                     return new TokenizedStringValueListFilterFormElements(context.State);
             }
