@@ -86,7 +86,8 @@ namespace Lombiq.Projections.Projections.Forms
             ValueString = FormState[nameof(ValueString)];
             Values = string.IsNullOrEmpty(ValueString) ?
                 new string[] { } :
-                ValueString.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Distinct().ToArray();
+                ValueString.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+                    .Distinct().Where(v => !string.IsNullOrWhiteSpace(v)).ToArray();
         }
 
 
@@ -96,7 +97,7 @@ namespace Lombiq.Projections.Projections.Forms
                 // If the value string is not a JSON array, then it's probably a single value or a comma-separated list.
                 ValueString.StartsWith("[") && ValueString.EndsWith("]") &&
                     jsonConverter != null && jsonConverter.TryDeserialize<string[]>(ValueString, out var values) ?
-                        values.Distinct().ToArray() : Values;
+                        values.Distinct().Where(v => !string.IsNullOrWhiteSpace(v)).ToArray() : Values;
 
         public virtual Action<IHqlExpressionFactory> GetFilterExpression(string property, string value = "")
         {
