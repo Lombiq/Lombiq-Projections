@@ -53,7 +53,7 @@ namespace Lombiq.Projections.Projections.Filters
                     descriptor.Element(binding.PropertyPath, binding.DisplayName, binding.Description,
                         context => ApplyFilter(context, binding),
                         context => DisplayFilter(context, binding),
-                        nameof(TokenizedStringValueListFilterForm)
+                        GetFormName(binding)
                     );
             }
         }
@@ -132,6 +132,17 @@ namespace Lombiq.Projections.Projections.Filters
             }
         }
 
+
+        private string GetFormName(ChainableMemberBinding binding)
+        {
+            switch (binding.PropertyType.Name)
+            {
+                case "Boolean":
+                    return nameof(TokenizedBooleanValueListFilterForm);
+                default:
+                    return nameof(TokenizedStringValueListFilterForm);
+            }
+        }
 
         private TokenizedValueListFilterFormElementsBase GetFormValues(FilterContext context, ChainableMemberBinding binding)
         {
