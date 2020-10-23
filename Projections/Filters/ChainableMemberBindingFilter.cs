@@ -148,6 +148,7 @@ namespace Lombiq.Projections.Projections.Filters
                     return nameof(TokenizedBooleanValueListFilterForm);
                 case "DateTime":
                     return DateTimeFilterForm.FormName;
+                case "YearSpanRange":
                 default:
                     return nameof(TokenizedStringValueListFilterForm);
             }
@@ -161,6 +162,8 @@ namespace Lombiq.Projections.Projections.Filters
                     return new TokenizedBooleanValueListFilterFormElements(context.State);
                 case "DateTime":
                     return new TokenizedDateTimeValueListFilterFormElements(context.State, _clock);
+                case "YearSpanRange":
+                    return new TokenizedYearSpanRangeValueListFilterFormElements(context.State, _clock);
                 default:
                     return new TokenizedStringValueListFilterFormElements(context.State);
             }
