@@ -15,6 +15,10 @@ namespace Lombiq.Projections.Providers
     {
         public virtual Type ContentPartRecordType { get; set; }
         public virtual string PropertyPath { get; set; }
+        /// <summary>
+        /// Use non-nullable primitives.
+        /// </summary>
+        public virtual Type PropertyType { get; set; } = typeof(string);
         public virtual LocalizedString DisplayName { get; set; }
         public virtual LocalizedString Description { get; set; }
     }

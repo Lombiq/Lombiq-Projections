@@ -1,8 +1,8 @@
 ﻿using Lombiq.Projections.Projections.Forms;
+using Orchard.ContentManagement;
 using Orchard.Localization;
 using Orchard.Projections.Descriptors.Filter;
 using Orchard.Projections.Services;
-using Piedone.HelpfulLibraries.Utilities;
 using System.Linq;
 
 namespace Lombiq.Projections.Projections.Filters
@@ -22,13 +22,13 @@ namespace Lombiq.Projections.Projections.Filters
         {
             describe.For("Content", T("Content Item"), T("Content Item"))
                 .Element(nameof(TokenizedContentItemIdsFilter), T("Tokenized Content Item Id"), T("Content items with matching content item Id."),
-                    ApplyFilter, DisplayFilter, TokenizedValueListFilterForm.FormName);
+                    ApplyFilter, DisplayFilter, nameof(TokenizedStringValueListFilterForm));
         }
 
 
         private LocalizedString DisplayFilter(FilterContext context)
         {
-            var formValues = new TokenizedValueListFilterFormElements(context.State);
+            var formValues = new TokenizedStringValueListFilterFormElements(context.State);
 
             return string.IsNullOrEmpty(formValues.ValueString) ?
                 T("Inactive filter: You need to define the value to match with.") :
@@ -39,7 +39,7 @@ namespace Lombiq.Projections.Projections.Filters
 
         private void ApplyFilter(FilterContext context)
         {
-            var formValues = new TokenizedValueListFilterFormElements(context.State);
+            var formValues = new TokenizedStringValueListFilterFormElements(context.State);
             var values = formValues.Values;
 
             if (!values.Any()) return;

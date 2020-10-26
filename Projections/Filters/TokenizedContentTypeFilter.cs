@@ -21,20 +21,20 @@ namespace Lombiq.Projections.Projections.Filters
         {
             describe.For("Content", T("Content"), T("Content"))
                 .Element("TokenizedContentTypes", T("Tokenized Content Types"), T("Tokenized Content Types"),
-                    ApplyFilter, DisplayFilter, TokenizedValueListFilterForm.FormName);
+                    ApplyFilter, DisplayFilter, nameof(TokenizedStringValueListFilterForm));
 
         }
 
         public void ApplyFilter(FilterContext context)
         {
-            var formValues = new TokenizedValueListFilterFormElements(context.State);
+            var formValues = new TokenizedStringValueListFilterFormElements(context.State);
 
             if (formValues.Values.Any()) context.Query = context.Query.ForType(formValues.Values);
         }
 
         public LocalizedString DisplayFilter(FilterContext context)
         {
-            var formValues = new TokenizedValueListFilterFormElements(context.State);
+            var formValues = new TokenizedStringValueListFilterFormElements(context.State);
 
             return formValues.Values.Any() ?
                 T("Content with its type matching \"{0}\".", formValues.Values) :

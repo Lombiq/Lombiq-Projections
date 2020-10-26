@@ -62,7 +62,7 @@ namespace Lombiq.Projections.Projections.Filters
                             description: new LocalizedString(description != null ? description + " (equals or contains)" : "Returns matching items based on a single value (equals) or a list of comma-separated values (contains), but doesn't filter out anything if the filter value is null or empty."),
                             display: context => DisplayFilter(context, localPart.Name + "." + localField.DisplayName),
                             filter: context => ApplyFilter(context, storageType, propertyName),
-                            form: TokenizedValueListFilterForm.FormName);
+                            form: nameof(TokenizedStringValueListFilterForm));
                     });
 
                     foreach (var driver in drivers) driver.Describe(membersContext);
@@ -72,7 +72,7 @@ namespace Lombiq.Projections.Projections.Filters
 
         public LocalizedString DisplayFilter(FilterContext context, string propertyName)
         {
-            var formValues = new TokenizedValueListFilterFormElements(context.State);
+            var formValues = new TokenizedStringValueListFilterFormElements(context.State);
 
             return string.IsNullOrEmpty(formValues.ValueString) ?
                 T("Inactive filter: You need to define the value to match with.") :
@@ -84,7 +84,7 @@ namespace Lombiq.Projections.Projections.Filters
 
         public void ApplyFilter(FilterContext context, Type storageType, string propertyName)
         {
-            var formValues = new TokenizedValueListFilterFormElements(context.State);
+            var formValues = new TokenizedStringValueListFilterFormElements(context.State);
 
             if (string.IsNullOrEmpty(formValues.ValueString)) return;
 

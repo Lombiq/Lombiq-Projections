@@ -7,6 +7,7 @@ using Orchard.Environment.Extensions;
 using Orchard.Localization;
 using Orchard.Projections.Descriptors.Filter;
 using Orchard.Projections.Services;
+using Orchard.Taxonomies.Fields;
 using Orchard.Taxonomies.Models;
 using Orchard.Taxonomies.Services;
 using System;
@@ -14,6 +15,10 @@ using System.Linq;
 
 namespace Lombiq.Projections.Projections.Filters
 {
+    /// <summary>
+    /// Allows filtering content with Terms selected for any <see cref="TaxonomyField"/>(s)
+    /// that belongs to the selected (one, more or any) Taxonomies.
+    /// </summary>
     [OrchardFeature(FeatureNames.Taxonomies)]
     public class TokenizedTaxonomyTermsFilter : IFilterProvider
     {
@@ -117,7 +122,7 @@ namespace Lombiq.Projections.Projections.Filters
                             ex3 => ex3.In("TermRecord.TaxonomyId", taxonomyIds)));
                     else
                         if (values.Contains) expression = ex => ex.In("TermRecord.Id", terms);
-                        else expression = ex => ex.Not(ex2 => ex2.In("TermRecord.Id", terms));
+                    else expression = ex => ex.Not(ex2 => ex2.In("TermRecord.Id", terms));
 
 
                     context.Query.Where(alias, expression);

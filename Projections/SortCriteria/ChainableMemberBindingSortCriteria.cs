@@ -1,7 +1,6 @@
 ﻿using Lombiq.Projections.Extensions;
 using Lombiq.Projections.Helpers;
 using Lombiq.Projections.Providers;
-using Orchard.ContentManagement;
 using Orchard.Localization;
 using Orchard.Projections.Descriptors.SortCriterion;
 using Orchard.Projections.Providers.SortCriteria;
@@ -92,17 +91,15 @@ namespace Lombiq.Projections.Projections.SortCriteria
                 .Split(new char[] { '.' }, StringSplitOptions.RemoveEmptyEntries)
                 .Skip(recordListReferencePropertyNames.Count()));
 
-            void getAlias(IAliasFactory alias, string join = "", string value = "") =>
-                ChainableMemberBindingHelper.GetChainableMemberBindingAlias(
-                    alias, binding.ContentPartRecordType, recordListReferencePropertyNames, filterPropertyName, join, value);
 
-            void getOrder(IHqlSortFactory order)
-            {
-                if (ascending) order.Asc(filterPropertyName);
-                else order.Desc(filterPropertyName);
-            }
-
-            context.Query.OrderBy(a => getAlias(a), o => getOrder(o));
+            context.Query.OrderBy(
+                alias => ChainableMemberBindingHelper.GetChainableMemberBindingAlias(
+                    alias, binding.ContentPartRecordType, recordListReferencePropertyNames, filterPropertyName),
+                order =>
+                {
+                    if (ascending) order.Asc(filterPropertyName);
+                    else order.Desc(filterPropertyName);
+                });
         }
     }
 }
