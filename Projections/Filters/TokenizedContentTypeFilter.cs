@@ -1,24 +1,18 @@
 ﻿using Lombiq.Projections.Projections.Forms;
-using Orchard.ContentManagement.MetaData;
 using Orchard.Localization;
 using Orchard.Projections.Descriptors.Filter;
 using Orchard.Projections.Services;
-using System;
 using System.Linq;
 
 namespace Lombiq.Projections.Projections.Filters
 {
     public class TokenizedContentTypeFilter : IFilterProvider
     {
-        private readonly Lazy<IContentDefinitionManager> _contentDefinitionManagerLazy;
-
         public Localizer T { get; set; }
 
 
-        public TokenizedContentTypeFilter(Lazy<IContentDefinitionManager> contentDefinitionManagerLazy)
+        public TokenizedContentTypeFilter()
         {
-            _contentDefinitionManagerLazy = contentDefinitionManagerLazy;
-
             T = NullLocalizer.Instance;
         }
 
@@ -37,19 +31,10 @@ namespace Lombiq.Projections.Projections.Filters
 
             if (formValues.Values.Any())
             {
-                if (formValues.Matches)
-                {
-                    context.Query = context.Query.ForType(formValues.Values);
-                }
-                else
-                {
-                    var contentTypeNames = _contentDefinitionManagerLazy
-                        .Value
-                        .ListTypeDefinitions()
-                        .Select(typeDefinition => typeDefinition.Name);
-
-                    context.Query = context.Query.ForType(contentTypeNames.Except(formValues.Values.ToList()).ToArray());
-                }
+                if (formValues.Matches) context.Query.ForType(formValues.Values);
+                else context.Query.Where(
+                    alias => alias.ContentItem(),
+                    filter => filter.Not(ex => ex.InG("ContentType.Name", formValues.Values)));
             }
         }
 
@@ -57,14 +42,11 @@ namespace Lombiq.Projections.Projections.Filters
         {
             var formValues = new TokenizedStringValueListFilterFormElements(context.State);
 
-            if (formValues.Values.Any())
-            {
-                return formValues.Matches ?
-                    T("Content with its type matching \"{0}\".", formValues.Values) :
-                    T("Content without its type matching \"{0}\".", formValues.Values);
-            }
-
-            return T("Any type of content.");
+            return formValues.Values.Any()
+                ? formValues.Matches
+                    ? T("Content with its type matching \"{0}\".", formValues.Values)
+                    : T("Content without its type matching \"{0}\".", formValues.Values)
+                : T("Any type of content (inactive filter).");
         }
     }
 }
