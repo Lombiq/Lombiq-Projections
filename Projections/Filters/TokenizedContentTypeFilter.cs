@@ -29,16 +29,24 @@ namespace Lombiq.Projections.Projections.Filters
         {
             var formValues = new TokenizedStringValueListFilterFormElements(context.State);
 
-            if (formValues.Values.Any()) context.Query = context.Query.ForType(formValues.Values);
+            if (formValues.Values.Any())
+            {
+                if (formValues.Matches) context.Query.ForType(formValues.Values);
+                else context.Query.Where(
+                    alias => alias.ContentItem(),
+                    filter => filter.Not(ex => ex.InG("ContentType.Name", formValues.Values)));
+            }
         }
 
         public LocalizedString DisplayFilter(FilterContext context)
         {
             var formValues = new TokenizedStringValueListFilterFormElements(context.State);
 
-            return formValues.Values.Any() ?
-                T("Content with its type matching \"{0}\".", formValues.Values) :
-                T("Any type of content.");
+            return formValues.Values.Any()
+                ? formValues.Matches
+                    ? T("Content with its type matching \"{0}\".", formValues.Values)
+                    : T("Content without its type matching \"{0}\".", formValues.Values)
+                : T("Any type of content (inactive filter).");
         }
     }
 }
