@@ -2,7 +2,6 @@
 using Orchard.Projections.FilterEditors.Forms;
 using Orchard.Services;
 using System;
-using System.Data.SqlTypes;
 using System.Linq;
 
 namespace Lombiq.Projections.Projections.Forms
@@ -21,12 +20,10 @@ namespace Lombiq.Projections.Projections.Forms
 
         public override Action<IHqlExpressionFactory> GetFilterExpression(string property, string value = "")
         {
-            var now = _clock.UtcNow;
-            var sqlMinDate = SqlDateTime.MinValue.Value;
-            var maxYearSpan = now.TotalYearsSpan(sqlMinDate.AddYears(1));
-
+            var now = _clock.UtcNow.Date;
             var range = value.Split(new char[] { '-' }, StringSplitOptions.RemoveEmptyEntries)
-                .Select(segment => int.TryParse(segment, out int number) ? Math.Min(number, maxYearSpan) : -1)
+                // Putting an artificial limit on the earliest birth year (1800) for database-compatibility.
+                .Select(segment => int.TryParse(segment, out int number) ? Math.Min(number, now.Year - 1800) : -1)
                 .Where(number => number >= 0)
                 .ToArray();
 
@@ -42,7 +39,7 @@ namespace Lombiq.Projections.Projections.Forms
             FormState.Operator = DateTimeOperator.Between;
             FormState.ValueType = 0;
             FormState.Min = now.AddYears(-yearSpanRange.Max);
-            FormState.Max = now.AddYears(-yearSpanRange.Min);
+            FormState.Max = now.AddYears(-yearSpanRange.Min).AddDays(1);
 
             return DateTimeFilterForm.GetFilterPredicate(FormState, property, _clock.UtcNow, false);
         }
