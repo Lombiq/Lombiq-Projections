@@ -118,6 +118,7 @@
     <Compile Include="Projections\Filters\ChainableMemberBindingFilter.cs" />
     <Compile Include="Projections\Filters\ContainsContentFieldsFilter.cs" />
     <Compile Include="Projections\Filters\EmptySafeContentFieldsFilter.cs" />
+    <Compile Include="Projections\Filters\CurrentUserTokenizedTaxonomyFieldTermsFilter.cs" />
     <Compile Include="Projections\Filters\TokenizedTaxonomyFieldTermsFilter.cs" />
     <Compile Include="Projections\Filters\TokenizedBooleanFieldFilter.cs" />
     <Compile Include="Projections\Filters\TokenizedContentItemIdsFilter.cs" />

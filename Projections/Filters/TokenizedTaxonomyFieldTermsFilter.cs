@@ -72,7 +72,7 @@ namespace Lombiq.Projections.Projections.Filters
                             null,
                             typeof(TitleSortableTermContentItem),
                             T("Terms"),
-                            T("The Terms selected for this TaxonomyField of the current User defined by a static value or a Token."))
+                            T("The Terms selected for this TaxonomyField defined by a static value or a Token."))
                         .Enumerate<TaxonomyField>(() => contentField => contentField.Terms);
                 }
             }
@@ -149,7 +149,7 @@ namespace Lombiq.Projections.Projections.Filters
                     {
                         // There are no matching terms, so the query shouldn't return any results.
                         context.Query.NullQuery();
-                        
+
                         return;
                     }
                     else terms = termIds;
