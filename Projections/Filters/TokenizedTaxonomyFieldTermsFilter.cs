@@ -2,7 +2,6 @@
 using Lombiq.Projections.Models;
 using Lombiq.Projections.Projections.Forms;
 using Orchard.ContentManagement;
-using Orchard.ContentManagement.Drivers;
 using Orchard.ContentManagement.Handlers;
 using Orchard.ContentManagement.MetaData;
 using Orchard.ContentManagement.MetaData.Models;
@@ -17,7 +16,6 @@ using Orchard.Taxonomies.Services;
 using Orchard.Taxonomies.Settings;
 using Orchard.Utility.Extensions;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 
 namespace Lombiq.Projections.Projections.Filters
@@ -29,33 +27,29 @@ namespace Lombiq.Projections.Projections.Filters
     [OrchardFeature(FeatureNames.Taxonomies)]
     public class TokenizedTaxonomyFieldTermsFilter : IFilterProvider
     {
-        private readonly IContentDefinitionManager _contentDefinitionManager;
-        private readonly IEnumerable<IContentFieldDriver> _contentFieldDrivers;
-        private readonly IContentManager _contentManager;
-        private readonly ITaxonomyService _taxonomyService;
+        protected readonly IContentDefinitionManager _contentDefinitionManager;
+        protected readonly IContentManager _contentManager;
+        protected readonly ITaxonomyService _taxonomyService;
 
 
         public TokenizedTaxonomyFieldTermsFilter(
             IContentDefinitionManager contentDefinitionManager,
-            IEnumerable<IContentFieldDriver> contentFieldDrivers,
             IContentManager contentManager,
             ITaxonomyService taxonomyService)
         {
             _contentDefinitionManager = contentDefinitionManager;
-            _contentFieldDrivers = contentFieldDrivers;
             _contentManager = contentManager;
             _taxonomyService = taxonomyService;
 
             T = NullLocalizer.Instance;
         }
 
-
         public Localizer T { get; set; }
 
-
-        public void Describe(DescribeFilterContext describe)
+        public virtual void Describe(DescribeFilterContext describe)
         {
-            foreach (var part in _contentDefinitionManager.ListPartDefinitions().Where(p => p.Fields.Any(f => f.FieldDefinition.Name == nameof(TaxonomyField))))
+            foreach (var part in _contentDefinitionManager.ListPartDefinitions()
+                .Where(p => p.Fields.Any(f => f.FieldDefinition.Name == nameof(TaxonomyField))))
             {
                 var descriptor = describe.For(
                     part.Name + nameof(TokenizedTaxonomyFieldTermsFilter),
@@ -74,40 +68,43 @@ namespace Lombiq.Projections.Projections.Filters
                             form: nameof(TokenizedTaxonomyFieldTermsFilterForm)));
 
                     membersContext
-                        .Member(null, typeof(TitleSortableTermContentItem), T("Terms"), T("The Terms selected for this {0} defined by a static value or a Token.", nameof(TaxonomyField)))
+                        .Member(
+                            null,
+                            typeof(TitleSortableTermContentItem),
+                            T("Terms"),
+                            T("The Terms selected for this TaxonomyField of the current User defined by a static value or a Token."))
                         .Enumerate<TaxonomyField>(() => contentField => contentField.Terms);
                 }
             }
         }
 
-        public LocalizedString DisplayFilter(FilterContext context, string storageName, Type storageType, ContentPartDefinition part, ContentPartFieldDefinition field)
+        public virtual LocalizedString DisplayFilter(
+            FilterContext context,
+            string storageName,
+            Type storageType,
+            ContentPartDefinition part,
+            ContentPartFieldDefinition field)
         {
-            if (field.FieldDefinition.Name != nameof(TaxonomyField)) return T("Inactive filter: This filter only works with {0}!", nameof(TaxonomyField));
-
+            var values = new TokenizedTaxonomyFieldTermsFilterFormElements(context.State);
             var taxonomyName = GetSelectedTaxonomyNameForField(field);
 
-            if (string.IsNullOrEmpty(taxonomyName) || _taxonomyService.GetTaxonomyByName(taxonomyName) == null)
-                return T("Inactive filter: This field doesn't have a Taxonomy selected!");
-
-            var values = new TokenizedTaxonomyFieldTermsFilterFormElements(context.State);
-
-            if (values.TermProperty == null) return T("Inactive filter: You need to define which Term property to match!");
-
-            if (string.IsNullOrEmpty(values.Terms)) return T("Inactive filter: You need to define the Terms to match!");
-
-            if (values.Operator > 1) return T("Inactive filter: You need to define the operator to match the Terms with!");
-
-            return T("Content items where the value \"{0}\" {1} {2} of the \"{3}\" Taxonomy's Terms' \"{4}\" property selected for {5}.{6}.",
-                values.Terms,
-                values.Contains ? T("matches") : T("doesn't match"),
-                values.Operator == 0 ? T("any") : T("all"),
-                taxonomyName,
-                values.TermProperty,
-                part.Name,
-                field.DisplayName);
+            return GetFormValidationError(field, taxonomyName, values)
+                ?? T("Content items where the value \"{0}\" {1} {2} of the \"{3}\" Taxonomy's Terms' \"{4}\" property selected for {5}.{6}.",
+                    values.Terms,
+                    values.Contains ? T("matches") : T("doesn't match"),
+                    values.Operator == 0 ? T("any") : T("all"),
+                    taxonomyName,
+                    values.TermProperty,
+                    part.Name,
+                    field.DisplayName);
         }
 
-        public void ApplyFilter(FilterContext context, string storageName, Type storageType, ContentPartDefinition part, ContentPartFieldDefinition field)
+        public virtual void ApplyFilter(
+            FilterContext context,
+            string storageName,
+            Type storageType,
+            ContentPartDefinition part,
+            ContentPartFieldDefinition field)
         {
             if (field.FieldDefinition.Name != nameof(TaxonomyField)) return;
 
@@ -151,9 +148,8 @@ namespace Lombiq.Projections.Projections.Filters
                     if (!termIds.Any())
                     {
                         // There are no matching terms, so the query shouldn't return any results.
-                        context.Query.Where(
-                            a => a.ContentPartRecord<TermPartRecord>(),
-                            ex => ex.Eq("Id", 0));
+                        context.Query.NullQuery();
+                        
                         return;
                     }
                     else terms = termIds;
@@ -198,8 +194,30 @@ namespace Lombiq.Projections.Projections.Filters
             }
         }
 
-
-        private string GetSelectedTaxonomyNameForField(ContentPartFieldDefinition field) =>
+        protected string GetSelectedTaxonomyNameForField(ContentPartFieldDefinition field) =>
             field.Settings[$"{nameof(TaxonomyFieldSettings)}.{nameof(TaxonomyFieldSettings.Taxonomy)}"];
+
+        protected virtual LocalizedString GetFormValidationError(
+            ContentPartFieldDefinition field,
+            string taxonomyName,
+            TokenizedTaxonomyFieldTermsFilterFormElements values)
+        {
+            if (field.FieldDefinition.Name != nameof(TaxonomyField))
+                return T("Inactive filter: This filter only works with {0}!", nameof(TaxonomyField));
+
+            if (string.IsNullOrEmpty(taxonomyName) || _taxonomyService.GetTaxonomyByName(taxonomyName) == null)
+                return T("Inactive filter: This field doesn't have a Taxonomy selected!");
+
+            if (values.TermProperty == null)
+                return T("Inactive filter: You need to define which Term property to match!");
+
+            if (string.IsNullOrEmpty(values.Terms))
+                return T("Inactive filter: You need to define the Terms to match!");
+
+            if (values.Operator > 1)
+                return T("Inactive filter: You need to define the operator to match the Terms with!");
+
+            return null;
+        }
     }
 }

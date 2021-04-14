@@ -9,7 +9,6 @@ using Orchard.Projections.Descriptors.Filter;
 using Orchard.Projections.Services;
 using Orchard.Taxonomies.Fields;
 using Orchard.Taxonomies.Models;
-using Orchard.Taxonomies.Services;
 using System;
 using System.Linq;
 
@@ -22,47 +21,52 @@ namespace Lombiq.Projections.Projections.Filters
     [OrchardFeature(FeatureNames.Taxonomies)]
     public class TokenizedTaxonomyTermsFilter : IFilterProvider
     {
-        private readonly ITaxonomyService _taxonomyService;
         private readonly IContentManager _contentManager;
         private int _termsFilterId;
 
         public Localizer T { get; set; }
 
 
-        public TokenizedTaxonomyTermsFilter(ITaxonomyService taxonomyService, IContentManager contentManager)
+        public TokenizedTaxonomyTermsFilter(IContentManager contentManager)
         {
-            _taxonomyService = taxonomyService;
             _contentManager = contentManager;
+
             T = NullLocalizer.Instance;
         }
 
 
         public void Describe(DescribeFilterContext describe)
         {
-            describe.For("Taxonomy", T("Taxonomy"), T("Taxonomy"))
-                .Element(typeof(TokenizedTaxonomyTermsFilter).Name, T("Tokenized Taxonomy Terms"), T("Content items with matching tokenized Taxonomy Terms definition."),
-                    ApplyFilter, DisplayFilter, TokenizedTaxonomyTermsFilterForm.FormName);
+            describe
+                .For("Taxonomy", T("Taxonomy"), T("Taxonomy"))
+                .Element(
+                    typeof(TokenizedTaxonomyTermsFilter).Name,
+                    T("Tokenized Taxonomy Terms"),
+                    T("Content items with matching tokenized Taxonomy Terms definition."),
+                    ApplyFilter,
+                    DisplayFilter,
+                    TokenizedTaxonomyTermsFilterForm.FormName);
         }
 
         public void ApplyFilter(FilterContext context)
         {
             var values = new TokenizedTaxonomyTermsFilterFormElements(context.State);
 
-            // "Terms" being empty should cause the Query not to filter anything. At this point it's not possible to determine whether
-            // the user didn't provide a value or "Terms" was evaluated to empty string (e.g. by tokenization).
+            // "Terms" being empty should cause the Query not to filter anything. At this point it's not possible to
+            // determine whether the user didn't provide a value or "Terms" was evaluated to empty string (e.g. by
+            // tokenization).
             if (string.IsNullOrEmpty(values.Terms)) return;
 
-            void zeroResultAlias(IAliasFactory a) => a.ContentPartRecord<TermPartRecord>();
-            void zeroResultExpression(IHqlExpressionFactory ex) => ex.Eq("Id", 0);
-
-            // The user is warned in the Query editor that either of these values being "null" will cause the Query to yield no results.
+            // The user is warned in the Query editor that either of these values being "null" will cause the Query to
+            // yield no results.
             if (values.TermProperty == null || values.Operator > 1)
             {
-                context.Query.Where(zeroResultAlias, zeroResultExpression);
+                context.Query.NullQuery();
                 return;
             }
 
-            var terms = values.Terms.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Select(term => term.Trim()).ToArray();
+            var terms = values.Terms.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+                .Select(term => term.Trim()).ToArray();
 
             if (terms.Length == 0) return;
 
@@ -94,7 +98,7 @@ namespace Lombiq.Projections.Projections.Filters
                     if (!termIds.Any())
                     {
                         // There are not matching terms, so the query shouldn't return any results.
-                        context.Query.Where(zeroResultAlias, zeroResultExpression);
+                        context.Query.NullQuery();
                         return;
                     }
                     else terms = termIds;
