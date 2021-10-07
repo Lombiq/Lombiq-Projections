@@ -18,4 +18,4 @@ Features:
         Name: Lombiq Projections - Taxonomies
         Description: Useful Projections filters for Taxonomies.
         Category: Content
-        Dependencies: Lombiq.Projections, Orchard.Taxonomies, Piedone.HelpfulLibraries.DependencyInjection
+        Dependencies: Lombiq.Projections, Orchard.Taxonomies, Piedone.HelpfulLibraries.DependencyInjection, Upgrade
