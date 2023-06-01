@@ -3,20 +3,12 @@ using Lombiq.Projections.Models;
 using Orchard.Data.Migration;
 using Orchard.Environment.Extensions;
 using Orchard.Taxonomies.Models;
-using Upgrade.Services;
 
 namespace Lombiq.Projections.Migrations
 {
     [OrchardFeature(FeatureNames.Taxonomies)]
     public class TitleSortableTermsMigrations : DataMigrationImpl
     {
-        private readonly IUpgradeService _upgradeService;
-
-        public TitleSortableTermsMigrations(IUpgradeService upgradeService)
-        {
-            _upgradeService = upgradeService;
-        }
-
         public int Create()
         {
             var termPartRecordColumnName = $"{nameof(TermPartRecord)}_id";
@@ -47,10 +39,9 @@ namespace Lombiq.Projections.Migrations
 
         public int UpdateFrom1()
         {
-            _upgradeService.ExecuteReader(
-                $@"ALTER TABLE {_upgradeService.GetPrefixedTableName($"Lombiq_Projections_{nameof(TitleSortableTermContentItem)}")}
-ALTER COLUMN {nameof(TitleSortableTermContentItem.Title)} nvarchar(1024);",
-                null);
+            SchemaBuilder.ExecuteSql(
+                $@"ALTER TABLE {SchemaBuilder.TableDbName(nameof(TitleSortableTermContentItem))}
+ALTER COLUMN {nameof(TitleSortableTermContentItem.Title)} nvarchar(1024);");
 
             return 2;
         }
