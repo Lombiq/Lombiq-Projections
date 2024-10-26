@@ -38,7 +38,7 @@ namespace Lombiq.Projections.Projections.Forms
 
             FormState.Operator = DateTimeOperator.Between;
             FormState.ValueType = 0;
-            FormState.Min = now.AddYears(-yearSpanRange.Max).ToIsoDateString();
+            FormState.Min = now.AddYears(-yearSpanRange.Max).AddYears(-1).ToIsoDateString();
             FormState.Max = now.AddYears(-yearSpanRange.Min).AddDays(1).ToIsoDateString();
 
             return DateTimeFilterForm.GetFilterPredicate(FormState, property, _clock.UtcNow, false);
