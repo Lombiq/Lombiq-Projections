@@ -159,6 +159,9 @@ namespace Lombiq.Projections.Services
         public IEnumerable<TermPart> GetTermsForContentItem(int contentItemId, string field = null, VersionOptions versionOptions = null) =>
             _decorated.GetTermsForContentItem(contentItemId, field, versionOptions);
 
+        public IContentQuery<TermPart, TermPartRecord> GetTermsQuery() =>
+            _decorated.GetTermsQuery();
+
         public IContentQuery<TermPart, TermPartRecord> GetTermsQuery(int taxonomyId) =>
             _decorated.GetTermsQuery(taxonomyId);
 
@@ -171,14 +174,11 @@ namespace Lombiq.Projections.Services
         public TermPart NewTerm(TaxonomyPart taxonomy, IContent parent) =>
             _decorated.NewTerm(taxonomy, parent);
 
-        public string ProcessChildrenFullWeight(string childrenFullWeight, string parentFullWeight, string parentOldFullWeight) =>
-            _decorated.ProcessChildrenFullWeight(childrenFullWeight, parentFullWeight, parentOldFullWeight);
-
-        public void ProcessFullWeight(TermPart term, TermPart parentTerm) =>
-            _decorated.ProcessFullWeight(term, parentTerm);
-
         public void ProcessPath(TermPart term) =>
             _decorated.ProcessPath(term);
+
+        public string ComputeFullWeight(TermPart part) =>
+            _decorated.ComputeFullWeight(part);
 
         #endregion
     }
